@@ -7,12 +7,18 @@
 
 // create new ASTNode with a specified AST type
 ASTNode * ASTCreateNode(enum NodeType type) {
-    //printf("Create node\n");
+    // Dynamically create a new node
     ASTNode * p = (ASTNode *) malloc(sizeof(struct ASTNode));
+
+	// set the node type
     p->type = type;
+	
+	// set s1, s2, and next to null
     p->s1 = NULL;
     p->s2 = NULL;
     p->next = NULL;
+
+	// return a pointer to that newly created node
     return p;
 } // end ASTCreateNode
 
@@ -20,7 +26,7 @@ ASTNode * ASTCreateNode(enum NodeType type) {
 void ASTattachnext(ASTNode *p, ASTNode *q) {
 } // end ASTattachnext
 
-// print the space
+// print as many space as the parameter given to the function
 void PT(int howmany) {
     int i;
     for (i = 0; i < howmany; ++i)
@@ -29,9 +35,7 @@ void PT(int howmany) {
 
 // Print out the abstract syntax tree
 void ASTprint(ASTNode *p, int level) {
-    //printf("Print AST\n");
-    
-    // NULL we will not print empty tree
+    // NULL we will not print anything because it is empty 
     if (p == NULL) return;
        
     switch (p->type) {
@@ -41,10 +45,10 @@ void ASTprint(ASTNode *p, int level) {
             // print the spacing
             PT(level);
             
-            // print
+            // print Variable
             fprintf(stderr, "Variable ");
             
-            // print the operators
+            // print its type 
             printOperator(p->operator);
             
             // print the name of the variable
@@ -53,15 +57,11 @@ void ASTprint(ASTNode *p, int level) {
             // if the value is greater than 1, then it is an array
             // else it is not
             if (p->value > 1)
-                fprintf(stderr, "[%d]", p->value);
-            
-			fprintf(stderr, "\n");
+                fprintf(stderr, "[%d]\n", p->value);
             
             // print the next declaration if any.
             ASTprint(p->s1, level);
             
-            // print the next
-            ASTprint(p->next, level);
             break; // of VARDEC
         }
             
@@ -78,11 +78,11 @@ void ASTprint(ASTNode *p, int level) {
             fprintf(stderr, " FUNCTION ");
             
             // print function name
-            fprintf(stderr, "%s", p->name);
+            fprintf(stderr, "%s\n", p->name);
             
             // print parameters
-            fprintf(stderr, "\n");
-            
+			// if s1 is null, meaning no parameter, print VOID
+			// else print the list of parameters 
             if (p->s1 == NULL) {
                 PT(level + level3);
                 fprintf(stderr, "(");
@@ -98,13 +98,9 @@ void ASTprint(ASTNode *p, int level) {
                 fprintf(stderr, ")\n");
             } // end else
             
-           
-            
             // print the compound statement
             ASTprint(p->s2, level + level2);
             
-            // print the next
-            ASTprint(p->next, level);
             break; // of FUNDEC
         }
         
@@ -126,13 +122,11 @@ void ASTprint(ASTNode *p, int level) {
             // print name
             fprintf(stderr, " %s", p->name);
             
-            // array or not
+            // if the value is greater than 1, it is an array
+			// else it is not
             if (p->value > 1) 
                 fprintf(stderr, "[]");
             
-            // print the next param
-            ASTprint(p->next, level);
-        
             break; // of PARAM
         }
         
@@ -150,9 +144,6 @@ void ASTprint(ASTNode *p, int level) {
             
             // print statement-list
             ASTprint(p->s2, level + level1);
-            
-            // print the next statement
-            ASTprint(p->next, level);
             
             break; // of COMPSTMT
         } // end compound statement
@@ -172,9 +163,6 @@ void ASTprint(ASTNode *p, int level) {
             // print statement
             ASTprint(p->s2, level + level2);
             
-            // print the next statement
-            ASTprint(p->next, level);
-            
             break; // of ITRSTMT
         } // end iteration statement
             
@@ -193,9 +181,6 @@ void ASTprint(ASTNode *p, int level) {
             
             // print IFSTMT1
             ASTprint(p->s2, level + level1);
-            
-            // print the next one
-            ASTprint(p->next, level);
             
             break;  // of IFSTMT
         } // end if 
@@ -217,8 +202,6 @@ void ASTprint(ASTNode *p, int level) {
             fprintf(stderr, "ELSE\n");
             ASTprint(p->s2, level+ level1);
             
-            // print the next statemetn
-            ASTprint(p->next, level+ level1);
             break; // of IFSTMT1
         } // end then or then and else
             
@@ -237,17 +220,21 @@ void ASTprint(ASTNode *p, int level) {
             // print the right side
             ASTprint(p->s2, level + level1);
             
-            // print the next statement
-            ASTprint(p->next, level);
-            
             break; // of ASSIGNSTMT
         } // end assignment statement
             
         // return statement
         case RETURNSTMT:
         {
-             // print the next one
-            ASTprint(p->next, level);
+			// print some spacing
+			PT(level);
+
+			// print Return
+			fprintf(stderr, "RETURN STATEMENT\n");
+
+			// ASTprint
+			ASTprint(p->s1, level + level1);
+
             break; // of RETURNSTMT
         } // end return statement
         
@@ -263,8 +250,6 @@ void ASTprint(ASTNode *p, int level) {
             // print the var
             ASTprint(p->s1, level + level1);
             
-            // print the next statment
-            ASTprint(p->next, level);
             
             break; // of READSTMT
         } // end read statement
@@ -281,9 +266,6 @@ void ASTprint(ASTNode *p, int level) {
             // print the expression
             ASTprint(p->s1, level + level1);
             
-            // print the next statement
-            ASTprint(p->next, level);
-            
             break; // of WRITESTMT
         } // end write statement
 			
@@ -298,14 +280,11 @@ void ASTprint(ASTNode *p, int level) {
             // print the expression
             ASTprint(p->s1, level + level1);
             
-            // print the next statement
-            ASTprint(p->next, level);
 			break; // of EXPRSTMT
         } // end expression statement
 			
 		case EXPR:
         {
-            fprintf(stderr, "Expression\n");
 		 	// print the spacing
 			PT(level);
             
@@ -323,9 +302,6 @@ void ASTprint(ASTNode *p, int level) {
             
             // print the right operand
             ASTprint(p->s2, level + level1);
-            
-            // print the next expression
-            ASTprint(p->next, level);
             
 			break; // of EXPR
         } // end expression
@@ -381,7 +357,6 @@ void ASTprint(ASTNode *p, int level) {
         // function call
         case FUNCALL:
         {
-			fprintf(stderr, "Funcall\n");
             // print the spacing
             PT(level);
             
@@ -400,15 +375,10 @@ void ASTprint(ASTNode *p, int level) {
                 PT(level + level2);
                 fprintf(stderr, ")\n");
             } // end else
-            
-           
-            // print the next statement
-            ASTprint(p->next, level);
             break; // of FUNCALL
         } // end funcall
 			
         default: 
-            
             fprintf(stderr, "UNKNOWN type in ASTprint\n");
             break;
 
