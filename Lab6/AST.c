@@ -1,0 +1,480 @@
+#include <stdio.h>
+#include <malloc.h>
+#include "AST.h"
+#define level1 1
+#define level2 2
+#define level3 3
+
+// create new ASTNode with a specified AST type
+ASTNode * ASTCreateNode(enum NodeType type) {
+    //printf("Create node\n");
+    ASTNode * p = (ASTNode *) malloc(sizeof(struct ASTNode));
+    p->type = type;
+    p->s1 = NULL;
+    p->s2 = NULL;
+    p->next = NULL;
+    return p;
+} // end ASTCreateNode
+
+// attach the two AST list given in the parameters with next
+void ASTattachnext(ASTNode *p, ASTNode *q) {
+} // end ASTattachnext
+
+// print the space
+void PT(int howmany) {
+    int i;
+    for (i = 0; i < howmany; ++i)
+        fprintf(stderr, " ");
+} // end PT
+
+// Print out the abstract syntax tree
+void ASTprint(ASTNode *p, int level) {
+    //printf("Print AST\n");
+    
+    // NULL we will not print empty tree
+    if (p == NULL) return;
+       
+    switch (p->type) {
+        // var-declaration
+        case VARDEC: // variable declaration
+        {
+            // print the spacing
+            PT(level);
+            
+            // print
+            fprintf(stderr, "Variable ");
+            
+            // print the operators
+            printOperator(p->operator);
+            
+            // print the name of the variable
+            fprintf(stderr, " %s", p->name);
+            
+            // if the value is greater than 1, then it is an array
+            // else it is not
+            if (p->value > 1)
+                fprintf(stderr, "[%d]", p->value);
+            
+			fprintf(stderr, "\n");
+            
+            // print the next declaration if any.
+            ASTprint(p->s1, level);
+            
+            // print the next
+            ASTprint(p->next, level);
+            break; // of VARDEC
+        }
+            
+        // fun-declaration
+        case FUNDEC:
+        {
+            // print the spaces
+            PT(level);
+            
+            // print return type
+            printOperator(p->operator);
+            
+            // print FUNCTION
+            fprintf(stderr, " FUNCTION ");
+            
+            // print function name
+            fprintf(stderr, "%s", p->name);
+            
+            // print parameters
+            fprintf(stderr, "\n");
+            
+            if (p->s1 == NULL) {
+                PT(level + level3);
+                fprintf(stderr, "(");
+                fprintf(stderr, "VOID");
+                fprintf(stderr, ")\n");
+            } // end if
+            else {
+                PT(level + level2);
+                fprintf(stderr, "(");
+                ASTprint(p->s1, level+ level2);
+                fprintf(stderr, "\n");
+                PT(level + level2);
+                fprintf(stderr, ")\n");
+            } // end else
+            
+           
+            
+            // print the compound statement
+            ASTprint(p->s2, level + level2);
+            
+            // print the next
+            ASTprint(p->next, level);
+            break; // of FUNDEC
+        }
+        
+        // param
+        case PARAM:
+        {
+            // get to a new line
+            fprintf(stderr, "\n");
+            
+            // print spaces
+            PT(level);
+            
+            // print PARAMETER
+            fprintf(stderr, "PARAMETER ");
+            
+            // print type
+            printOperator(p->operator);
+            
+            // print name
+            fprintf(stderr, " %s", p->name);
+            
+            // array or not
+            if (p->value > 1) 
+                fprintf(stderr, "[]");
+            
+            // print the next param
+            ASTprint(p->next, level);
+        
+            break; // of PARAM
+        }
+        
+        // compound statement
+        case COMPSTMT:
+        {
+            // print the spacing
+            PT(level);
+            
+            // print BLOCK STATEMENT
+            fprintf(stderr, "BLOCK STATEMENT\n");
+            
+            // print local declaration
+            ASTprint(p->s1, level + level1);
+            
+            // print statement-list
+            ASTprint(p->s2, level + level1);
+            
+            // print the next statement
+            ASTprint(p->next, level);
+            
+            break; // of COMPSTMT
+        } // end compound statement
+        
+        // iteration statement
+        case ITERSTMT:
+        {
+            // print some spacing
+            PT(level);
+            
+            // print WHILE STATEMENT
+            fprintf(stderr, "WHILE STATEMENT\n");
+            
+            // print expression
+            ASTprint(p->s1, level + level1);
+            
+            // print statement
+            ASTprint(p->s2, level + level2);
+            
+            // print the next statement
+            ASTprint(p->next, level);
+            
+            break; // of ITRSTMT
+        } // end iteration statement
+            
+        // selection statement
+        // if statement
+        case IFSTMT: // if /
+        {
+            // print the spacing
+            PT(level);
+            
+            // print IF
+            fprintf(stderr, "IF STATEMENT\n");
+            
+            // print the expression
+            ASTprint(p->s1, level+ level1);
+            
+            // print IFSTMT1
+            ASTprint(p->s2, level + level1);
+            
+            // print the next one
+            ASTprint(p->next, level);
+            
+            break;  // of IFSTMT
+        } // end if 
+        
+        // else statement
+        case IFSTMT1: // then or then and else
+        {
+            // print the spacing
+            PT(level);
+            
+            // print then
+            fprintf(stderr, "THEN\n");
+            ASTprint(p->s1, level+ level1);
+            
+            // print the spacing
+            PT(level);
+            
+            // print else
+            fprintf(stderr, "ELSE\n");
+            ASTprint(p->s2, level+ level1);
+            
+            // print the next statemetn
+            ASTprint(p->next, level+ level1);
+            break; // of IFSTMT1
+        } // end then or then and else
+            
+        // assign statement
+        case ASSIGNSTMT:
+        {
+            // print spacing
+            PT(level);
+            
+            // print the Assignment STATEMENT
+            fprintf(stderr, "Assignment STATEMENT\n");
+            
+            // print the left side
+            ASTprint(p->s1, level + level1);
+            
+            // print the right side
+            ASTprint(p->s2, level + level1);
+            
+            // print the next statement
+            ASTprint(p->next, level);
+            
+            break; // of ASSIGNSTMT
+        } // end assignment statement
+            
+        // return statement
+        case RETURNSTMT:
+        {
+             // print the next one
+            ASTprint(p->next, level);
+            break; // of RETURNSTMT
+        } // end return statement
+        
+        // read statement
+        case READSTMT:
+        {
+            // print some spacing
+            PT(level);
+            
+            // print READ STATEMENT
+            fprintf(stderr, "READ STATEMENT\n");
+            
+            // print the var
+            ASTprint(p->s1, level + level1);
+            
+            // print the next statment
+            ASTprint(p->next, level);
+            
+            break; // of READSTMT
+        } // end read statement
+            
+        // write statement
+        case WRITESTMT:
+        {
+            // print some spacing
+            PT(level);
+            
+            // print WRITE STATEMENT
+            fprintf(stderr, "WRITE STATEMENT\n");
+            
+            // print the expression
+            ASTprint(p->s1, level + level1);
+            
+            // print the next statement
+            ASTprint(p->next, level);
+            
+            break; // of WRITESTMT
+        } // end write statement
+			
+		case EXPRSTMT:
+        {   
+            // print the spacing
+            PT(level);
+            
+            // print EXPRSTMT
+            fprintf(stderr, "EXPRSTMT\n");
+            
+            // print the expression
+            ASTprint(p->s1, level + level1);
+            
+            // print the next statement
+            ASTprint(p->next, level);
+			break; // of EXPRSTMT
+        } // end expression statement
+			
+		case EXPR:
+        {
+            fprintf(stderr, "Expression\n");
+		 	// print the spacing
+			PT(level);
+            
+			// print EXPR
+            fprintf(stderr, "EXPR ");
+            
+			// print the operator
+            printOperator(p->operator);
+            
+            // new line
+            fprintf(stderr, "\n");
+            
+            // print the left operand
+            ASTprint(p->s1, level + level1);
+            
+            // print the right operand
+            ASTprint(p->s2, level + level1);
+            
+            // print the next expression
+            ASTprint(p->next, level);
+            
+			break; // of EXPR
+        } // end expression
+        
+        case IDENT:
+        {
+            // print the spacing
+            PT(level);
+            
+        
+            // a single variable
+            // print IDENTIFIER
+            fprintf(stderr, "IDENTIFIER ");
+            
+            // print the its name
+            fprintf(stderr, "%s\n", p->name);
+            
+            if (p->value > 1)
+            {
+                // some spacing
+                PT(level);
+                
+                // an array
+                // print Array Reference [ newline
+                fprintf(stderr, "Array Reference [\n");
+                
+                // print the expression
+                ASTprint(p->s1, level + level1);
+                
+                // print ] and end array
+                PT(level);
+                fprintf(stderr, "] end array\n");
+                
+            } // end if
+            
+            break; // of IDENT
+        } // end identifier
+        
+        case NUMBER:
+        {
+            // print the spacing
+            PT(level);
+            
+            // print NUMBER
+            fprintf(stderr, "NUMBER with value ");
+            
+            // print its value
+            fprintf(stderr, "%d\n", p->value);
+            
+            break; // of NUMBER
+        } // end number
+        
+        // function call
+        case FUNCALL:
+        {
+			fprintf(stderr, "Funcall\n");
+            // print the spacing
+            PT(level);
+            
+            // print FUNCTION CALL
+            fprintf(stderr, "CALL %s\n", p->name);
+            
+            // print the arguments
+            if (p->s1 == NULL) {
+                PT(level + level3);
+                fprintf(stderr, "()\n");
+            } // end if
+            else {
+                PT(level + level2);
+                fprintf(stderr, "(\n");
+                ASTprint(p->s1, level+ level2);
+                PT(level + level2);
+                fprintf(stderr, ")\n");
+            } // end else
+            
+           
+            // print the next statement
+            ASTprint(p->next, level);
+            break; // of FUNCALL
+        } // end funcall
+			
+        default: 
+            
+            fprintf(stderr, "UNKNOWN type in ASTprint\n");
+            break;
+
+    } // end switch
+	ASTprint(p->next, level);
+
+} // end ASTprint
+
+void printOperator(enum OPERATORS op) {
+//      // print the type
+    switch (op) {
+        // types
+        case INTTYPE:
+            fprintf(stderr, "INT");
+            break;
+        case BOOLTYPE:
+            fprintf(stderr, "BOOLEAN");
+            break;
+        case VOIDTYPE:
+            fprintf(stderr, "VOID");
+            break;
+        
+        // math operators
+        case PLUS:
+            fprintf(stderr, "+");
+            break;
+        case MINUS:
+            fprintf(stderr, "-");
+            break;
+        case TIMES:
+            fprintf(stderr, "*");
+            break;
+        case DIV:
+            fprintf(stderr, "/");
+            break;
+        case ANDBW:
+            fprintf(stderr, "AND");
+            break;
+        case ORBW:
+            fprintf(stderr, "OR");
+            break;
+    
+        // comparison operators
+        case LESS:
+            fprintf(stderr, "<");
+            break;
+        case LESSE:
+            fprintf(stderr, "<=");
+            break;
+        case GREAT:
+            fprintf(stderr, ">");
+            break;
+        case GREATE:
+            fprintf(stderr, ">=");
+            break;
+        case EQUAL:
+            fprintf(stderr, "==");
+            break;
+        case NEQUAL:
+            fprintf(stderr, "!=");
+            break;
+        case NOTOP:
+            fprintf(stderr, "NOT");
+            break;
+        
+        default:
+            fprintf(stderr, "Undefined type\n");
+    } // end switch
+} // end printOperator
