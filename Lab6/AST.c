@@ -33,7 +33,7 @@ void PT(int howmany) {
         fprintf(stderr, " ");
 } // end PT
 
-// Print out the abstract syntax tree
+// Print out the abstract syntax tree with some level of indentation given in the parameter
 void ASTprint(ASTNode *p, int level) {
     // NULL we will not print anything because it is empty 
     if (p == NULL) return;
@@ -250,7 +250,6 @@ void ASTprint(ASTNode *p, int level) {
             // print the var
             ASTprint(p->s1, level + level1);
             
-            
             break; // of READSTMT
         } // end read statement
             
@@ -310,15 +309,15 @@ void ASTprint(ASTNode *p, int level) {
         {
             // print the spacing
             PT(level);
-            
         
-            // a single variable
+            // a single variable, not an array
             // print IDENTIFIER
             fprintf(stderr, "IDENTIFIER ");
             
             // print the its name
             fprintf(stderr, "%s\n", p->name);
             
+			// if the value is greater than 1, it is an arary, print it as an array
             if (p->value > 1)
             {
                 // some spacing
@@ -387,10 +386,10 @@ void ASTprint(ASTNode *p, int level) {
 
 } // end ASTprint
 
+// print the types of the operator given in the parameter
 void printOperator(enum OPERATORS op) {
-//      // print the type
     switch (op) {
-        // types
+        // variable types
         case INTTYPE:
             fprintf(stderr, "INT");
             break;
