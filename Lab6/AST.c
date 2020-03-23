@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
+//#include <malloc.h>
 #include "AST.h"
 #define level1 1
 #define level2 2
@@ -52,14 +53,17 @@ void ASTprint(ASTNode *p, int level) {
             printOperator(p->operator);
             
             // print the name of the variable
-            fprintf(stderr, " %s", p->name);
+            fprintf(stderr, "  %s", p->name);
             
             // if the value is greater than 1, then it is an array
             // else it is not
             if (p->value > 1)
-                fprintf(stderr, "[%d]\n", p->value);
+                fprintf(stderr, "[%d]", p->value);
             
-            // print the next declaration if any.
+            // print new line
+            fprintf(stderr, "\n");
+
+            // print the next declaration on the same line if any.
             ASTprint(p->s1, level);
             
             break; // of VARDEC
@@ -199,8 +203,10 @@ void ASTprint(ASTNode *p, int level) {
             PT(level);
             
             // print else
-            fprintf(stderr, "ELSE\n");
-            ASTprint(p->s2, level+ level1);
+            if (p->s2 != NULL) {
+                fprintf(stderr, "ELSE\n");
+                ASTprint(p->s2, level+ level1);
+            } // end if
             
             break; // of IFSTMT1
         } // end then or then and else
@@ -288,7 +294,7 @@ void ASTprint(ASTNode *p, int level) {
 			PT(level);
             
 			// print EXPR
-            fprintf(stderr, "EXPR ");
+            fprintf(stderr, "EXPR  ");
             
 			// print the operator
             printOperator(p->operator);

@@ -1,4 +1,8 @@
-int a; int main(void)
+void main(void)
 begin
-	a = 10;
+
+ ;;;;;
+
+ write 5;
+
 end

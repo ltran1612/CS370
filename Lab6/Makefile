@@ -18,3 +18,5 @@ clean:
 	
 test:
 	./lab6 < test.al
+test1:
+	./lab6 < lab6mytest.al 2> result.txt
