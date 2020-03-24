@@ -143,7 +143,6 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                     $$ = ASTCreateNode(VARDEC);
                     $$->name = $1;
                     $$->value = $3;
-                    //printf("array\n");
                 } // end ID [NUM]
                 
             |   ID  ',' var_list 
@@ -152,7 +151,6 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                    $$->name = $1;
                    $$->value = 1;
                    $$->s1 = $3;
-                   //printf("LIst\n");
                 } // end ID , var_list
                 
             |   ID '[' NUM ']' ',' var_list 
@@ -180,7 +178,6 @@ type_specifier  : INT /*type-specifier → int | void | boolean*/
 
 fun_declaration : type_specifier ID '(' params ')' compound_stmt /*fun-declaration →type-specifier ID ( params ) compound-stmt*/
                     {
-                        
                         $$ = ASTCreateNode(FUNDEC);
                         $$->name = $2;
                         $$->operator = $1;
@@ -202,7 +199,6 @@ params  : VOID /*params → void | param-list*/
         
 param_list  : param /*param-list → param { , param }*/
                 {
-                   
                     $$ = $1;
                 }
             | param ',' param_list 
@@ -214,24 +210,20 @@ param_list  : param /*param-list → param { , param }*/
             
 param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
             {
-                
                 // Create new node for a non-array parameter
                 $$ = ASTCreateNode(PARAM);
                 $$->name = $2;
                 $$->value = 1;
                 $$->operator = $1;
-               
             } // end type_specifier ID
             
         | type_specifier ID '[' ']' 
             {
-                 
                 // Create new node for an array parameter
                 $$ = ASTCreateNode(PARAM);
                 $$->name = $2;
                 $$->value = 2;
                 $$->operator = $1;
-                
             } // end type_specifier ID []
         ;
         
@@ -246,8 +238,7 @@ statement_list  : /*empty*/ /*statement-list → { statement }*/
                         $$ = $1;
                         if ($$ != NULL)
                             $$->next = $2;
-                        
-                    }
+                    } // end statement statement_list
                 ;
                 
 statement   : expression_stmt /*statement → expression-stmt | compound-stmt | selection-stmt |iteration-stmt | assignment-stmt | return-stmt | read-stmt | write-stmt*/
@@ -286,7 +277,6 @@ statement   : expression_stmt /*statement → expression-stmt | compound-stmt | 
                 
 compound_stmt   : MYBEGIN local_declaration statement_list END /*compound-stmt → begin local-declarations statement-list end*/
                     {
-                        
                         // create new node for compound statement
                         $$ = ASTCreateNode(COMPSTMT);
                         $$->s1 = $2;
@@ -296,12 +286,10 @@ compound_stmt   : MYBEGIN local_declaration statement_list END /*compound-stmt �
                 
 local_declaration   : /*empty*/ /*local-declarations → { var-declarations }*/
                         {
-                            
                             $$ = NULL;
                         }
                     | var_declaration local_declaration
                         {
-                            
                             $$ =  $1;
                             if ($$ != NULL)
                                 $$->next = $2;

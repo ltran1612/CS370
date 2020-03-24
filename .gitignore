@@ -4,3 +4,7 @@
 *.odt
 *.odt#
 *.kate-swp
+*.swo
+*.swp
+*.yy.c
+y.tab.*

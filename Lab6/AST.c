@@ -199,11 +199,10 @@ void ASTprint(ASTNode *p, int level) {
             fprintf(stderr, "THEN\n");
             ASTprint(p->s1, level+ level1);
             
-            // print the spacing
-            PT(level);
-            
             // print else
             if (p->s2 != NULL) {
+                // print the spacing
+                PT(level);
                 fprintf(stderr, "ELSE\n");
                 ASTprint(p->s2, level+ level1);
             } // end if

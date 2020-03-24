@@ -1,0 +1,98 @@
+The program is syntactically correct
+Variable VOID  x
+Variable INT  x[100]
+INT FUNCTION main
+   (VOID)
+  BLOCK STATEMENT
+   Variable INT  x
+   BLOCK STATEMENT
+    Variable INT  y
+    WHILE STATEMENT
+     EXPR  <=
+      EXPR  +
+       IDENTIFIER x
+       EXPR  /
+        NUMBER with value 5
+        NUMBER with value 2
+      EXPR  -
+       EXPR  +
+        NUMBER with value 2
+        IDENTIFIER z
+       NUMBER with value 5
+      IF STATEMENT
+       EXPR  >=
+        EXPR  -
+         IDENTIFIER h
+         NUMBER with value 2
+        EXPR  -
+         NUMBER with value 3
+         NUMBER with value 2
+       THEN
+        READ STATEMENT
+         IDENTIFIER x
+         Array Reference [
+          NUMBER with value 100
+         ] end array
+       ELSE
+        WRITE STATEMENT
+         EXPR  +
+          IDENTIFIER x
+          Array Reference [
+           NUMBER with value 100
+          ] end array
+          NUMBER with value 200
+    EXPRSTMT
+     CALL f
+       (
+       EXPR  +
+        NUMBER with value 3
+        IDENTIFIER x
+        Array Reference [
+         IDENTIFIER x
+         Array Reference [
+          NUMBER with value 100
+         ] end array
+        ] end array
+       EXPR  +
+        IDENTIFIER bar
+        NUMBER with value 200
+       NUMBER with value 20
+       )
+    RETURN STATEMENT
+    RETURN STATEMENT
+     EXPR  +
+      EXPR  +
+       IDENTIFIER x
+       NUMBER with value 5
+      NUMBER with value 7
+    IF STATEMENT
+     EXPR  >
+      EXPR  +
+       IDENTIFIER x
+       NUMBER with value 10
+      EXPR  *
+       NUMBER with value 10
+       NUMBER with value 20
+     THEN
+      Assignment STATEMENT
+       IDENTIFIER x
+       EXPR  !=
+        IDENTIFIER x
+        NUMBER with value 10
+    WRITE STATEMENT
+     EXPR  NOT
+      EXPR  OR
+       EXPR  AND
+        NUMBER with value 3
+        NUMBER with value 5
+       EXPR  AND
+        NUMBER with value 1
+        EXPR  NOT
+         NUMBER with value 0
+VOID FUNCTION f
+  (
+  PARAMETER INT x
+  PARAMETER INT y
+  PARAMETER VOID z
+  )
+  BLOCK STATEMENT
