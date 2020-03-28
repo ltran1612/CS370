@@ -2,9 +2,11 @@
  * Taken from Shaun Cooper, 2019
  */
 
-/* Description: a header file to contain the enum of operators and node types
- * Modified by Long Tran
- * Date: March 28th, 2020
+/*
+    Filename: AST.h
+    Description: a header file to contain the enum of operators and node types
+    Modified by Long Tran
+    Date: March 28th, 2020
  */
 
 // preprocessors wrapper
