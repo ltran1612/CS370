@@ -13,10 +13,6 @@ lex.yy.c: lab6.l
 y.tab.c: lab6.y
 	yacc -d lab6.y
 
+# clean target for cleaning the executable file, and the files created from lex and yacc
 clean:
-	rm -r lex.yy.c y.tab.c y.tab.h
-	
-test:
-	./lab6 < test.al
-test1:
-	./lab6 < lab6mytest.al 2> result.txt
+	rm -r lex.yy.c y.tab.c y.tab.h lab6

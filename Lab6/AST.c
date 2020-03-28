@@ -1,3 +1,9 @@
+/*
+    File Name: AST.c
+    Description: Contain the ASTprint function that will help print the AST tree.
+    Author: Long Tran
+    Date: 
+*/
 #include <stdio.h>
 #include <stdlib.h>
 //#include <malloc.h>
@@ -23,10 +29,6 @@ ASTNode * ASTCreateNode(enum NodeType type) {
     return p;
 } // end ASTCreateNode
 
-// attach the two AST list given in the parameters with next
-void ASTattachnext(ASTNode *p, ASTNode *q) {
-} // end ASTattachnext
-
 // print as many space as the parameter given to the function
 void PT(int howmany) {
     int i;
@@ -35,10 +37,12 @@ void PT(int howmany) {
 } // end PT
 
 // Print out the abstract syntax tree with some level of indentation given in the parameter
+// if the type of the node given is not defined, the function will print out an error message.
 void ASTprint(ASTNode *p, int level) {
     // NULL we will not print anything because it is empty 
     if (p == NULL) return;
        
+    // for each type of node type, print its content
     switch (p->type) {
         // var-declaration
         case VARDEC: // variable declaration
@@ -94,10 +98,15 @@ void ASTprint(ASTNode *p, int level) {
                 fprintf(stderr, ")\n");
             } // end if
             else {
+                // print some spacing for the left paranthese
                 PT(level + level2);
-                fprintf(stderr, "(");
+                // print left paranthese
+                fprintf(stderr, "(\n");
+
+                // print the parameters
                 ASTprint(p->s1, level+ level2);
-                fprintf(stderr, "\n");
+
+                // print the spacing for the right paranthese
                 PT(level + level2);
                 fprintf(stderr, ")\n");
             } // end else
@@ -110,10 +119,7 @@ void ASTprint(ASTNode *p, int level) {
         
         // param
         case PARAM:
-        {
-            // get to a new line
-            fprintf(stderr, "\n");
-            
+        {    
             // print spaces
             PT(level);
             
@@ -126,10 +132,13 @@ void ASTprint(ASTNode *p, int level) {
             // print name
             fprintf(stderr, " %s", p->name);
             
-            // if the value is greater than 1, it is an array
+            // if the value is greater than 1, it is an array, then print []
 			// else it is not
             if (p->value > 1) 
                 fprintf(stderr, "[]");
+
+            // get to a new line
+            fprintf(stderr, "\n");
             
             break; // of PARAM
         }
@@ -171,7 +180,7 @@ void ASTprint(ASTNode *p, int level) {
         } // end iteration statement
             
         // selection statement
-        // if statement
+        // the expression of if statement
         case IFSTMT: // if /
         {
             // print the spacing
@@ -189,7 +198,7 @@ void ASTprint(ASTNode *p, int level) {
             break;  // of IFSTMT
         } // end if 
         
-        // else statement
+        // then and/or else statement
         case IFSTMT1: // then or then and else
         {
             // print the spacing
@@ -203,7 +212,11 @@ void ASTprint(ASTNode *p, int level) {
             if (p->s2 != NULL) {
                 // print the spacing
                 PT(level);
+
+                // print ELSE
                 fprintf(stderr, "ELSE\n");
+
+                // print else
                 ASTprint(p->s2, level+ level1);
             } // end if
             
@@ -332,7 +345,7 @@ void ASTprint(ASTNode *p, int level) {
                 // print Array Reference [ newline
                 fprintf(stderr, "Array Reference [\n");
                 
-                // print the expression
+                // print the expression in the array
                 ASTprint(p->s1, level + level1);
                 
                 // print ] and end array
@@ -368,30 +381,43 @@ void ASTprint(ASTNode *p, int level) {
             fprintf(stderr, "CALL %s\n", p->name);
             
             // print the arguments
+            // if null, then there are no arguments, print empty ()
+            // else print the arguments inside the parantheses
             if (p->s1 == NULL) {
                 PT(level + level3);
                 fprintf(stderr, "()\n");
             } // end if
             else {
+                // print the spacing for left paranthese
                 PT(level + level2);
+                // print left paranthese
                 fprintf(stderr, "(\n");
+
+                // print the arguments
                 ASTprint(p->s1, level+ level2);
+
+                // print the spacing for the right paranthese
                 PT(level + level2);
+                // print right paranthese
                 fprintf(stderr, ")\n");
             } // end else
             break; // of FUNCALL
         } // end funcall
-			
+		
+        // default type when a new type of node is found
         default: 
             fprintf(stderr, "UNKNOWN type in ASTprint\n");
             break;
 
     } // end switch
+
+    // print out the node this node is connected to in the same level
 	ASTprint(p->next, level);
 
 } // end ASTprint
 
 // print the types of the operator given in the parameter
+// if it contains an undefined type, it will print a message to it
 void printOperator(enum OPERATORS op) {
     switch (op) {
         // variable types
@@ -418,6 +444,8 @@ void printOperator(enum OPERATORS op) {
         case DIV:
             fprintf(stderr, "/");
             break;
+
+        // not sure what is this yet
         case ANDBW:
             fprintf(stderr, "AND");
             break;
@@ -448,6 +476,7 @@ void printOperator(enum OPERATORS op) {
             fprintf(stderr, "NOT");
             break;
         
+        // undefined type
         default:
             fprintf(stderr, "Undefined type\n");
     } // end switch

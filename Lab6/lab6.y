@@ -304,10 +304,9 @@ statement_list  : /*empty*/ /*statement-list → { statement }*/
                         $$ = $1;
 
                         // connect statement with other statement in statement list
-                        // if ($$ != NULL) was added before because when developing statement could be null
-                        // because each type of statement passed up null value. 
-
-                        $$->next = $2;
+                        // we need to check if null because statement could be made null for debug reasons.
+                        if ($$ != NULL) 
+                            $$->next = $2;
                     } // end statement statement_list
                 ;
                 
@@ -541,7 +540,7 @@ simple_expression   : additive_expression /*simple-expression → additive-expre
                             // simple_expression
                             $$->s1 = $1;
                             
-                            // operator
+                            // relop operator
                             $$->operator = $2;
                             
                             // additive_expression
@@ -594,7 +593,7 @@ additive_expression : term /*additive-expression → term { addop term } (left-a
                             // additive expression
                             $$->s1 = $1;
                             
-                            // opeartor
+                            // addop opeartor
                             $$->operator = $2;
                             
                             // term
@@ -627,7 +626,7 @@ term    : factor /*term → factor { multop factor } (left-associative)*/
                 // term
                 $$->s1 = $1;
                 
-                // operator
+                // multop operator
                 $$->operator = $2;
                 
                 // factor
