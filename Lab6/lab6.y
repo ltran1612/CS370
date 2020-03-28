@@ -2,14 +2,17 @@
     File Name: lab6.y
     Description: This yacc routine will parse the input and checks if the program matches the syntax of the ALGOL_C. It will print out any possible syntax error with the line on which the error is.
     Author: Long Tran
-    Date: March 3rd, 2020
+    Date: March 28th, 2020
     Input: strings
     Output: If the program is syntactically correct, it will print "The program is syntactically correct"
+    Changes: 
+    + Add AST.h
+    + Remove yacc_debug_statement
 */
 
 %{
+// stdio.h for fprintf
 #include <stdio.h>
-#include <string.h>
 
 // include to access the nodes types
 #include "AST.h"
@@ -24,9 +27,6 @@ void yyerror(char const * s) {
 
 // prototype to avoid having to include yy.lex.c
 int yylex();
-
-// set 1 to print debug statement, 0 for no debug statement
-int yacc_debug = 1;
 
 // the node to the abstract syntax tree of the entire program.
 ASTNode * gp;
