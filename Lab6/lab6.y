@@ -8,6 +8,9 @@
     Changes: 
     + Add AST.h
     + Remove yacc_debug_statement
+    + Add a global pointer to hold the root of the ast
+    + Add semantic actions in the production rules to produce node for abstract syntax tree
+    + Print out the tree after parsing. 
 */
 
 %{
@@ -28,7 +31,7 @@ void yyerror(char const * s) {
 // prototype to avoid having to include yy.lex.c
 int yylex();
 
-// the node to the abstract syntax tree of the entire program.
+// the global pointer to the root of the abstract syntax tree of the entire program.
 ASTNode * gp;
 
 %}

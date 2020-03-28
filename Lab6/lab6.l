@@ -3,18 +3,22 @@
     Description: This lex routine will analyze the input given from yacc and return the appropriate tokens: INT, VOID, BOOLEAN, MYBEGIN, END, IF, THEN, ELSE, WHILE, DO, RETURN, READ, WRITE, LE, GE, EQ, NE, AND, OR, NOT, TRUE, FALSE, NUM, ID, '-', '+', '*', '/', '=', '(', ')', ',', ';', '<', '>', '[', ']'. 
     For NUM and ID, it will return with companion value.
     Author: Long Tran
-    Date: March 3rd, 2020
+    Date: March 28th, 2020
     Input: from yacc file
-    Output: a token 
+    Output: a token
+    Changes:
+    + added some comments 
 */
 
 
 %{
-// header files created from .y file by yacc using -d flag
+
 // because lex does not know about OPERATORS and ASTNode, which is used in the union
+// in yylval
 #include "AST.h"
 
-// 
+// header files created from .y file by yacc using -d flag
+// include y.tab.h to access to the tokens from yacc
 #include "y.tab.h"
 
 // keep track of the line number
