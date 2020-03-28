@@ -1,0 +1,115 @@
+The program is syntactically correct
+Variable INT  a
+Variable INT  b
+Variable INT  i
+INT FUNCTION main
+   (VOID)
+  BLOCK STATEMENT
+   WHILE STATEMENT
+    EXPR  NOT
+     EXPR  >
+      IDENTIFIER i
+      NUMBER with value 100
+     BLOCK STATEMENT
+      Variable INT  b
+      Variable INT  c
+      Variable INT  e[2]
+      Variable INT  f
+      Variable INT  g
+      Variable INT  h
+      Variable INT  i[21]
+      Assignment STATEMENT
+       IDENTIFIER b
+       IDENTIFIER c
+       Array Reference [
+        EXPR  +
+         NUMBER with value 12
+         IDENTIFIER a
+         Array Reference [
+          NUMBER with value 32
+         ] end array
+       ] end array
+      WRITE STATEMENT
+       EXPR  +
+        IDENTIFIER a
+        IDENTIFIER b
+      READ STATEMENT
+       IDENTIFIER h
+       Array Reference [
+        IDENTIFIER a
+        Array Reference [
+         EXPR  +
+          NUMBER with value 123
+          IDENTIFIER a
+          Array Reference [
+           NUMBER with value 2
+          ] end array
+        ] end array
+       ] end array
+      IF STATEMENT
+       CALL func
+         (
+         NUMBER with value 1
+         NUMBER with value 2
+         CALL f
+            ()
+         CALL a
+           (
+           NUMBER with value 32
+           NUMBER with value 1
+           )
+         )
+       THEN
+        BLOCK STATEMENT
+         WRITE STATEMENT
+          NUMBER with value 21
+      WRITE STATEMENT
+       NUMBER with value 1
+      WRITE STATEMENT
+       NUMBER with value 0
+      IF STATEMENT
+       IDENTIFIER a
+       THEN
+        BLOCK STATEMENT
+         WRITE STATEMENT
+          NUMBER with value 0
+       ELSE
+        BLOCK STATEMENT
+         WRITE STATEMENT
+          NUMBER with value 1
+      Assignment STATEMENT
+       IDENTIFIER a
+       EXPR  -
+        EXPR  +
+         IDENTIFIER a
+         EXPR  /
+          EXPR  *
+           IDENTIFIER b
+           NUMBER with value 2
+          IDENTIFIER b
+        EXPR  OR
+         EXPR  AND
+          NUMBER with value 3
+          NUMBER with value 3
+         NUMBER with value 1
+      RETURN STATEMENT
+      Assignment STATEMENT
+       IDENTIFIER i
+       EXPR  +
+        IDENTIFIER i
+        NUMBER with value 1
+INT FUNCTION func
+  (
+  PARAMETER INT a
+  PARAMETER INT b[]
+  PARAMETER INT c
+  PARAMETER INT d
+  )
+  BLOCK STATEMENT
+   RETURN STATEMENT
+    NUMBER with value 10
+INT FUNCTION f
+   (VOID)
+  BLOCK STATEMENT
+   RETURN STATEMENT
+    NUMBER with value 12
