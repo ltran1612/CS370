@@ -6,6 +6,7 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+// comment out malloc.h because on mac, it warns that malloc is not found, malloc is included in stdlib
 //#include <malloc.h>
 #include "AST.h"
 #define level1 1
