@@ -4,7 +4,7 @@
 
 /* Description: a header file to contain the enum of operators and node types
  * Modified by Long Tran
- * Date:
+ * Date: March 28th, 2020
  */
 
 // preprocessors wrapper
@@ -14,20 +14,32 @@
 // operators and basic data type
 enum OPERATORS {
     // math operators
+    // +
     PLUS,
     MINUS,
+    // -
     TIMES,
+    // /
     DIV,
+    // and
     ANDBW,
+    // or
     ORBW,
     
     // comparison operators
+    // <
     LESS,
+    // <=
     LESSE,
+    // >
     GREAT,
+    // >=
     GREATE,
+    // ==
     EQUAL,
+    // !=
     NEQUAL,
+    // not
     NOTOP,
    
     // types

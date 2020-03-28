@@ -2,7 +2,7 @@
     File Name: AST.c
     Description: Contain the ASTprint function that will help print the AST tree.
     Author: Long Tran
-    Date: 
+    Date: March 28th, 2020
 */
 #include <stdio.h>
 #include <stdlib.h>
