@@ -1,6 +1,6 @@
 #Makefile for lab6
 #Long Tran
-#March rd, 2020
+#March 28th, 2020
 
 all: lab6
 
