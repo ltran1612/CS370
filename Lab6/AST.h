@@ -126,9 +126,13 @@ ASTNode * ASTCreateNode(enum NodeType type);
 // print as many spaces as the parameter
 void PT(int howmany);
 
-// Print out the abstract syntax tree
+// parameter expected ASTNode, and int level. 
+// Print out the abstract syntax tree with some level of indentation given in the parameter in the AST order.
+// if the type of the node given is not defined, the function will print out an error message.
 void ASTprint(ASTNode *p, int level);
 
-// print the type of operator from the given enum OPERATORS
+// parameter expected OPERATORS enum
+// print the types of the operator given in the parameter
+// if it contains an undefined type, it will print an error message
 void printOperator(enum OPERATORS op);
 #endif  // of AST_H

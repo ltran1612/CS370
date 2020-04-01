@@ -37,7 +37,8 @@ void PT(int howmany) {
         fprintf(stderr, " ");
 } // end PT
 
-// Print out the abstract syntax tree with some level of indentation given in the parameter
+// parameter expected ASTNode, and int level. 
+// Print out the abstract syntax tree with some level of indentation given in the parameter in the AST order.
 // if the type of the node given is not defined, the function will print out an error message.
 void ASTprint(ASTNode *p, int level) {
     // NULL we will not print anything because it is empty 
@@ -417,8 +418,9 @@ void ASTprint(ASTNode *p, int level) {
 
 } // end ASTprint
 
+// parameter expected OPERATORS enum
 // print the types of the operator given in the parameter
-// if it contains an undefined type, it will print a message to it
+// if it contains an undefined type, it will print an error message
 void printOperator(enum OPERATORS op) {
     switch (op) {
         // variable types
