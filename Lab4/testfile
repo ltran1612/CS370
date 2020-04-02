@@ -1,0 +1,10 @@
+int x;
+int y;
+int result;
+int factor;
+x = 2
+y = 3
+factor = 4
+x = x + 2 * -(factor * y)
+result = x - 10
+result
