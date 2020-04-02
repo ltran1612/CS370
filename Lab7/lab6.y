@@ -167,7 +167,8 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                         $$->value = 1;
 
                         // Insert the var dec into the table
-                        //Insert($$->name, )
+                        printf("Insert\n");
+                        $$->myTab = Insert($$->name, 0, level, 1, 0, NULL);
                         Display();
                     } // end if
                 } // end ID

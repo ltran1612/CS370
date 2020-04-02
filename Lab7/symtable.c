@@ -35,7 +35,7 @@ char * CreateTemp()
 } // end CreateTemp
 
 /* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
-struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level, int size, int offset , ASTNode * fparms)
+struct SymbTab * Insert(char *name, int isFunc, int  level, int size, int offset , ASTNode * fparms)
 {
   struct SymbTab * n;
   n=Search(name,level, 0);
@@ -52,7 +52,7 @@ struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level,
     p->offset = offset;  /* assign the offset */
     p->level = level;  /* assign the level */
     p->size = size;  /* assign the size */
-    p->type = type;  /* assign the Type */
+    //p->type = type;  /* assign the Type */
     p->isFunc = isFunc;  /* assign the Function  */
     p->fparms = fparms;  /* assign the Function  */
     p->next = NULL;
@@ -79,8 +79,7 @@ struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level,
 /* print out a single symbol table entry -- for debugging */
 void PrintSym(struct SymbTab *s)
 {
-  // changed the printing so it looks better
-  printf("\t%s%11d%8d\n",s->name,s->offset, s->level);
+  printf("\t%s\t\t%d\t\t%d\n",s->name,s->offset, s->level);
 } // end PrintSym
 
 /*  General display to see what is our symbol table */

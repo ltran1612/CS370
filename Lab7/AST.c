@@ -25,6 +25,7 @@ ASTNode * ASTCreateNode(enum NodeType type) {
     p->s1 = NULL;
     p->s2 = NULL;
     p->next = NULL;
+    p->myTab = NULL;
 
 	// return a pointer to that newly created node
     return p;
