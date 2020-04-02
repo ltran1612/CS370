@@ -85,15 +85,15 @@ void PrintSym(struct SymbTab *s)
 /*  General display to see what is our symbol table */
 void Display()
 {
-   int i;
-   struct SymbTab *p;
-   p=first;
-   printf("\n\tLABEL\t\tOffset \t LEVEL\n");
-      while (p!=NULL)
-      {
-         PrintSym(p);
-         p=p->next;
-      } // end while
+  int i;
+  struct SymbTab *p;
+  p=first;
+  printf("\n\tLABEL\t\tOffset \t LEVEL\n");
+  while (p!=NULL)
+  {
+      PrintSym(p);
+      p=p->next;
+  } // end while
 } // end Display
 
 /*  Search for a symbol name at level or below.  We have to do multiple passes into the symbol table because we have to find
@@ -157,12 +157,12 @@ int Delete(int level)
   return(SIZE);
 } // end Delete
 
-int main()
-{
-       printf("search returns %d\n", Search("myfirst", 0, 0) == NULL);
-       Insert("myfirst", INTTYPE, 0, 0, 1, 0, NULL);
-       Insert("mysecond", INTTYPE, 0, 0, 1, 0, NULL);
-       Insert("mythird", INTTYPE, 0, 0, 1, 0, NULL);
-       printf("search returns %d\n", Search("myfirst", 0, 0) == NULL);
-       Display();
-}  /* and of main */
+// int main()
+// {
+//        printf("search returns %d\n", Search("myfirst", 0, 0) == NULL);
+//        Insert("myfirst", INTTYPE, 0, 0, 1, 0, NULL);
+//        Insert("mysecond", INTTYPE, 0, 0, 1, 0, NULL);
+//        Insert("mythird", INTTYPE, 0, 0, 1, 0, NULL);
+//        printf("search returns %d\n", Search("myfirst", 0, 0) == NULL);
+//        Display();
+// }  /* and of main */
