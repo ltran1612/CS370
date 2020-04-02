@@ -20,6 +20,9 @@
 // include to access the nodes types
 #include "AST.h"
 
+// include access to symbol table
+//#include "symtable.h"
+
 // linecount is  by lex
 extern int linecount;
 
@@ -360,6 +363,9 @@ statement   : expression_stmt /*statement → expression-stmt | compound-stmt | 
                 
 compound_stmt   : MYBEGIN local_declaration statement_list END /*compound-stmt → begin local-declarations statement-list end*/
                     {
+                        // enter compound, increment level
+                        level++;
+
                         // create new node for compound statement
                         $$ = ASTCreateNode(COMPSTMT);
 
@@ -368,6 +374,10 @@ compound_stmt   : MYBEGIN local_declaration statement_list END /*compound-stmt �
 
                         // statements
                         $$->s2 = $3;
+
+                        // exit compound, decrement level
+                        level--;
+                        
                     }
                 ;
                 

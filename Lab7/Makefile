@@ -4,8 +4,8 @@
 
 all: lab6
 
-lab6:  y.tab.c lex.yy.c AST.c AST.h 
-	gcc lex.yy.c y.tab.c AST.c -o lab6
+lab6:  y.tab.c lex.yy.c AST.c AST.h symtable.c symtable.h
+	gcc lex.yy.c y.tab.c AST.c symtable.c -o lab6
 
 lex.yy.c: lab6.l
 	lex lab6.l

@@ -13,17 +13,13 @@
 
     We add a routine to remove variables at our level and above.
 */
-
-    
-
-#include "AST.h"
-
 // change to normal convention
 #ifndef  SYMTABLE_H
 #define  SYMTABLE_H
 
-int mem=0;
+#include "AST.h"
 
+int mem = 0;
 
 // the struct definition of SymbTab
 // Change the name to better suit my style
@@ -46,4 +42,5 @@ struct SymbTab * Search(char * name, int level, int recur);
 void Display();
 int Delete();
 int FetchAddr (char *lab);
-#endif
+
+#endif // of SYMTABLE_H
