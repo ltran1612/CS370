@@ -166,4 +166,5 @@ int Delete(int level)
 //        Insert("mythird", INTTYPE, 0, 0, 1, 0, NULL);
 //        printf("search returns %d\n", Search("myfirst", 0, 0) == NULL);
 //        Display();
+//        printf("%d\n", Delete(0));
 // }  /* and of main */

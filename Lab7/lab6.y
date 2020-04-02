@@ -21,7 +21,7 @@
 #include "AST.h"
 
 // include access to symbol table
-//#include "symtable.h"
+#include "symtable.h"
 
 // linecount is  by lex
 extern int linecount;
@@ -155,14 +155,20 @@ var_declaration : type_specifier var_list ';' /*var-declaration → type-specifi
 
 var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] , var-list*/
                 {
-                    // Vardec node for normal variable
-                    $$ = ASTCreateNode(VARDEC);
+                    if (Search($1, level, 0) == NULL) {
+                        // Vardec node for normal variable
+                        $$ = ASTCreateNode(VARDEC);
 
-                    // name of the variable
-                    $$->name = $1;
+                        // name of the variable
+                        $$->name = $1;
 
-                    // the size of the variable
-                    $$->value = 1;
+                        // the size of the variable
+                        $$->value = 1;
+
+                        // Insert the var dec into the table
+                        //Insert($$->name, )
+                        Display();
+                    } // end if
                 } // end ID
                 
             |   ID '[' NUM ']' 
@@ -241,6 +247,11 @@ fun_declaration : type_specifier ID '(' params ')' compound_stmt /*fun-declarati
 
                         // compound statement
                         $$->s2 = $6;
+
+                        // on funcdec exit
+                        // int offset-=Delete(1);  /* remove all the symbols from what we put in from the function call*/
+                        // level=0;  /* reset the level */
+                        // int offset = goffset;
                     }  // end type_specifier
                 ;
 
@@ -378,6 +389,9 @@ compound_stmt   : MYBEGIN local_declaration statement_list END /*compound-stmt �
                         // exit compound, decrement level
                         level--;
                         
+                        // also
+                        Display();  /* display symbol table as per requirement */
+                        // offset -= Delete(level);  /* decrease the offset count by the size of values allocated at level */
                     }
                 ;
                 

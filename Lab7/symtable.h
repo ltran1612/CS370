@@ -19,7 +19,7 @@
 
 #include "AST.h"
 
-int mem = 0;
+// int mem = 0;
 
 // the struct definition of SymbTab
 // Change the name to better suit my style
