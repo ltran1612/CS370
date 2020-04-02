@@ -17,11 +17,12 @@
 // stdio.h for fprintf
 #include <stdio.h>
 
+// include access to symbol table
+#include "symtable.h"
+
 // include to access the nodes types
 #include "AST.h"
 
-// include access to symbol table
-#include "symtable.h"
 
 // linecount is  by lex
 extern int linecount;

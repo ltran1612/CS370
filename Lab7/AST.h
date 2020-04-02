@@ -111,6 +111,9 @@ typedef struct ASTNode {
     
     // used for size of a variable declaraion, variable and the value of token like NUM. 
     int value;
+
+    // a pointer to a tab in symbol table
+    struct SymbTab * myTab;
     
     // links to the next statement or declaration
     struct ASTNode *next;
