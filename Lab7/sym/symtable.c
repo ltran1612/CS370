@@ -44,6 +44,12 @@ void Insert(char * symbol, enum OPERATORS type, int isFunc, int level, int size,
     struct SymbTab * newentry = (struct SymbTab *) malloc(sizeof(struct SymbTab));
     newentry->symbol = strdup(symbol);
     newentry->addr = offset;
+    newentry->addr = offset;  /* assign the offset */
+    newentry->level = level;  /* assign the level */
+    newentry->size = size;  /* assign the size */
+    newentry->type = type;  /* assign the Type */
+    newentry->isFunc = isFunc;  /* assign the Function  */
+    newentry->fparms = fparms;  /* assign the Function  */
     newentry->next = NULL;
     
     // insert the newentry into the table
