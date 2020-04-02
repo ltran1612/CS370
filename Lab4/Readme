@@ -1,0 +1,3 @@
+Name: Long Tran
+Project Name: Lab4
+Requirements: I have got the Readme file, the lex code(lab2docalc.l), yacc code(lab2docalc.y), symbol table code (symtable.c and symtable.h), two test files (testfile, testfile2), my yacc file do not include lex.yy.c despite compiling correctly, and I had a PDF file for screenshots of all cases (Screenshots.pdf). 
