@@ -30,52 +30,54 @@ char * CreateTemp()
 } // end CreateTemp
 
 /* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
-struct SymbTab * Insert(char *name, enum OPERATORS Type, int isFunc, int  level, int mysize, int offset , ASTNode * fparms)
+struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level, int size, int offset , ASTNode * fparms)
 {
-    struct SymbTab * n;
-    n=Search(name,level, 0);
-    if(n!=NULL)
-      {
-      printf("\n\tThe name %s exists at level %d already in the symbol table\n\tDuplicate can.t be inserted",name, level);
-      return (NULL);
-      } // end if
+  struct SymbTab * n;
+  n=Search(name,level, 0);
+  if(n!=NULL)
+    {
+    printf("\n\tThe name %s exists at level %d already in the symbol table\n\tDuplicate can.t be inserted",name, level);
+    return (NULL);
+    } // end if
+  else
+  {
+    struct SymbTab *p;
+    p = malloc(sizeof(struct SymbTab));
+    p->name = name;
+    p->offset = offset;  /* assign the offset */
+    p->level = level;  /* assign the level */
+    p->size = size;  /* assign the size */
+    p->type = type;  /* assign the Type */
+    p->isFunc = isFunc;  /* assign the Function  */
+    p->fparms = fparms;  /* assign the Function  */
+    p->next = NULL;
+
+  /* Check on how many elements we have in the symbol table */
+    if(first==NULL)
+    {
+      first=p;
+    } // end if
     else
     {
-      struct SymbTab *p;
-      p=malloc(sizeof(struct SymbTab));
-      p->name=name;
-      p->offset=offset;  /* assign the offset */
-      p->level=level;  /* assign the level */
-      p->mysize=mysize;  /* assign the size */
-      p->Type=Type;  /* assign the Type */
-      p->IsAFunc=isafunc;  /* assign the Function  */
-      p->fparms=fparms;  /* assign the Function  */
-      p->next=NULL;
-
-   /* Check on how many elements we have in the symbol table */
-      if(first==NULL)
-      {
-        first=p;
-      } // end if
-      else
-      {
-        p->next=first;
-        first=p;
-      } // end else
-      return (p);
+      p->next=first;
+      first=p;
     } // end else
+
+    // return a pointer to the SymbTab of a newly created SymbTab
+    return (p);
+  } // end else
+
+  // something has been inserted
   printf("\n\tLabel inserted\n");
 } // end insert
 
 /* print out a single symbol table entry -- for debugging */
 void PrintSym(struct SymbTab *s)
 {
-         printf("\t%s\t\t%d\t\t%d\n",s->name,s->offset, s->level);
+  printf("\t%s\t\t%d\t\t%d\n",s->name,s->offset, s->level);
 } // end PrintSym
 
-
 /*  General display to see what is our symbol table */
-
 void Display()
 {
    int i;
@@ -91,14 +93,8 @@ void Display()
 
 /*  Search for a symbol name at level or below.  We have to do multiple passes into the symbol table because we have to find
    the name closest to us 
-
-
-  If recur is non-zero, then we look through all of the levels, otherwise, only our level 
-   We return a pointer to a SymbolTab structure so that we can use other functions/methods to get the attributes */
-
- 
-
-
+    If recur is non-zero, then we look through all of the levels, otherwise, only our level 
+    We return a pointer to a SymbolTab structure so that we can use other functions/methods to get the attributes */
 struct SymbTab * Search(char name[], int level, int recur)
 {
    int i,flag=0;

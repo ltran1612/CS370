@@ -16,30 +16,33 @@
 
     
 
-#include "ast.h"
+#include "AST.h"
 
-#ifndef _SYMTAB 
-#define _SYMTAB
+// change to normal convention
+#ifndef  SYMTABLE_H
+#define  SYMTABLE_H
 
 int mem=0;
-void Display();
-int Delete();
 
-int FetchAddr (char *lab);
 
+// the struct definition of SymbTab
+// Change the name to better suit my style
 struct SymbTab
 {
      char *name;
      int offset; /* from activation record boundary */
-     int mysize;  /* number of words this item is 1 or more */
+     int size;  /* number of words this item is 1 or more */
      int level;  /* the level where we found the variable */
-     enum OPERATORS Type;  /* the type of the symbol */
-     int IsAFunc;  /* the element is a function */
-     ASTnode * fparms; /* pointer to parameters of the function in the AST */
+     enum OPERATORS type;  /* the type of the symbol */
+     int isFunc;  /* the element is a function */
+     ASTNode * fparms; /* pointer to parameters of the function in the AST */
 
      struct SymbTab *next;
-};
+}; // end SymbTab struct definition
 
 
-struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level, int mysize, int offset, ASTnode * fparms );
+struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level, int mysize, int offset, ASTNode * fparms );
+void Display();
+int Delete();
+int FetchAddr (char *lab);
 #endif
