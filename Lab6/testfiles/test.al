@@ -7,6 +7,7 @@ begin
 	begin
 		int b, c, e[2], f, g;
 		int h, i[21];
+		b = c[12 + a[32]];
 		write a + b;
 		read h[a[123 + a[2]]];
 		if func(1, 2, f(), a(32,1)) then
