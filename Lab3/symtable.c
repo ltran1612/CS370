@@ -1,12 +1,20 @@
 /*
-	Description:
+    file name: symtable.c
+	Description: A program that we can insert into, display, delte, modify a table of rows (called tab) with attributes label, symbol, and address. The table is implemented as a linked list. We can only insert tabs with distinct names
+	
 	Code pulled from http://forgetcode.com/C/101-Symbol-table
+	
+	modifier: Long Tran
+	February 10, 2020
+	
 	Changes:
 		+ Add comments
 		+ Indent the code
 		+ Move the functions prototoypes, struct SymbTab definition, and the old preprocessors to a header file.
         + Add an include preprocessor to include the header file.
 */
+
+// include the header file
 #include "symtable.h"
 
 // the number of symbol tabs
@@ -22,7 +30,7 @@ void main()
     
     do
     {
-        // display the options of activities
+        // display the options of activities for the table
         printf("\n\tSYMBOL TABLE IMPLEMENTATION\n");
         printf("\n\t1.INSERT\n\t2.DISPLAY\n\t3.DELETE\n\t4.SEARCH\n\t5.MODIFY\n\t6.END\n");
         printf("\n\tEnter your option : ");
@@ -48,7 +56,6 @@ void main()
             
             // option search
             case 4:
-                
             // requesting the label to be searched
             printf("\n\tEnter the label to be searched : ");
             scanf("%s",la);
@@ -73,12 +80,13 @@ void main()
             // option exit
             case 6:
             exit(0);
+            
         }  // end switch
-    } while(op<6);
+    } while(op<6); // end do-while
 
 }  /* and of main */
 
-// Insert function
+// insert a tab with distinct label into the table
 void Insert()
 {
     // the result of the search for a tab with the label of the tab we want to insert
@@ -93,7 +101,6 @@ void Insert()
     
     // write the name of the label
     n=Search(l);
-    
     
     if(n==1) // the entry with that label is found in the table
         printf("\n\tThe label exists already in the symbol table\n\tDuplicate can.t be inserted");
@@ -139,7 +146,7 @@ void Insert()
     printf("\n\tLabel inserted\n");
 } // end Insert
 
-// displaying the content in the symbol table
+// displaying the tabs in the symbol table
 void Display()
 {
     // a variable to count the number of tabs printed
@@ -162,7 +169,7 @@ void Display()
     } // end for
 } // end Display
 
-// search in the table for a tab with the label in the parameter
+// search in the table for a tab with the label in the parameter and return 1 if found, 0 if not found
 int Search(char lab[])
 {
     // variable i to count of tabs searched, variable flag to check if a tab with the parameter label is found
@@ -185,7 +192,7 @@ int Search(char lab[])
     return flag;
 } // end Search
 
-// modify the content in the symbol table
+// modify every tab in the symbol table with the requested lable name fromt the user. this function can modify label and/or symbol and address
 void Modify()
 {
     // l: current label, nl: new label
@@ -326,7 +333,7 @@ void Modify()
     } // end switch
 } // end Modify
 
-// delete a tab in a symbol table
+// delete a tab in a symbol table with the requested label from the user. Finding the need-to-be-deleted tab by checking the first tab, the last tab, then the middle tabs
 void Delete()
 {
     // the current address
