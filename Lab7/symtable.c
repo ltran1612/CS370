@@ -15,8 +15,12 @@
 */
 
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "symtable.h"
 #include "AST.h"
+int GTEMP = 0;
 
 // 
 struct SymbTab * first;
@@ -74,7 +78,8 @@ struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level,
 /* print out a single symbol table entry -- for debugging */
 void PrintSym(struct SymbTab *s)
 {
-  printf("\t%s\t\t%d\t\t%d\n",s->name,s->offset, s->level);
+  // changed the printing so it looks better
+  printf("\t%s%11d%8d\n",s->name,s->offset, s->level);
 } // end PrintSym
 
 /*  General display to see what is our symbol table */
@@ -95,7 +100,7 @@ void Display()
    the name closest to us 
     If recur is non-zero, then we look through all of the levels, otherwise, only our level 
     We return a pointer to a SymbolTab structure so that we can use other functions/methods to get the attributes */
-struct SymbTab * Search(char name[], int level, int recur)
+struct SymbTab * Search(char * name, int level, int recur)
 {
    int i,flag=0;
    struct SymbTab *p;
@@ -109,50 +114,55 @@ struct SymbTab * Search(char name[], int level, int recur)
          if((strcmp(p->name,name)==0) && (p->level == level))
            return p;
          p=p->next;
-        }
+        } // end while
        if (recur == 0) return (NULL);   /* we did not find it at our level */
        level--; /* check the next level up */
-    }
-
+    } // end while
 
    return  NULL;  /* did not find it, return 0 */
-}
+} // end Search
 
 /* Remove all enteries that have the indicated level
    We need to take care about updating first pointer into the linked list when we are deleting edge elements */
-
-
 int Delete(int level)
 {
-    struct SymbTab *p,*f=NULL;  /* we follow with pointer f */
-    int SIZE=0;
-    p=first;
+  int SIZE=0;
 
-    
-    
+  /* we follow with pointer f */
   /* cruise through the list */
+  for (struct SymbTab *p = first, *f = NULL; p != NULL; p = p->next)
+  {
+    /* do we match? */
+    if (p->level >= level )
+    { 
+      SIZE += p->size;
 
-    while (p != NULL)
+      /* if it is the first in the list we have to update first, we know this by f being NULL */
+      if (f == NULL) 
       {
-        /* do we match? */
-        if (p->level>= level )
-        { /* if it is the first in the list we have to update first, we know this by f being NULL */
-           SIZE+=p->mysize;
-           if ( f==NULL) first=p->next;
-           else /* not the first element */
-              {f->next=p->next;
-              }
-            p=p->next;
-           
-        }
-        else
-         {
-               /* update follow pointer, move the p pointer */
-                f=p;
-                p=p->next;
-          }
+        first = p->next;
+      } // end if
+      else /* not the first element */
+      {
+        f->next = p->next;
+      }  // end else
+    } // end if
+    else
+    {
+      /* update follow pointer, move the p pointer */
+      f = p;
+    } // end else
+  } // end while
 
-      }
-    return(SIZE);
-}
+  return(SIZE);
+} // end Delete
 
+int main()
+{
+       printf("search returns %d\n", Search("myfirst", 0, 0) == NULL);
+       Insert("myfirst", INTTYPE, 0, 0, 1, 0, NULL);
+       Insert("mysecond", INTTYPE, 0, 0, 1, 0, NULL);
+       Insert("mythird", INTTYPE, 0, 0, 1, 0, NULL);
+       printf("search returns %d\n", Search("myfirst", 0, 0) == NULL);
+       Display();
+}  /* and of main */
