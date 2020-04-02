@@ -23,7 +23,7 @@
 
     // functions prototypes
     // insert an entry with a symbol and offset into the table
-    void Insert(char * symbol, int offset);
+    void Insert(char * symbol, enum OPERATORS type, int isFunc, int level, int size, int offset , ASTNode * fparms);
     
     // displaying the entries in the symbol table
     void Display();
@@ -46,7 +46,7 @@
         // taken from Cooper's symtable.h
 
         /* number of words this item is 1 or more */
-        int words_num;
+        int wordsNum;
 
          /* the level where we found the variable */  
         int level; 

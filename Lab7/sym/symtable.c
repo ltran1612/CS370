@@ -19,6 +19,8 @@
 // include the header file
 #include "symtable.h"
 
+// include 
+
 // the number of symbol entries
 int size=0;
 
@@ -36,7 +38,7 @@ struct SymbTab *first = NULL,*last = NULL;
 // }  /* and of main */
 
 // insert an entry with a symbol and offset into the table
-void Insert(char * symbol, int offset)
+void Insert(char * symbol, enum OPERATORS type, int isFunc, int level, int size, int offset , ASTNode * fparms)
 {
     // create a newentry with the values from the parameters
     struct SymbTab * newentry = (struct SymbTab *) malloc(sizeof(struct SymbTab));

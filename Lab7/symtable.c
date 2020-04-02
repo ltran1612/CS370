@@ -30,7 +30,7 @@ char * CreateTemp()
 } // end CreateTemp
 
 /* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
-struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level, int mysize, int offset , ASTNode * fparms)
+struct SymbTab * Insert(char *name, enum OPERATORS Type, int isFunc, int  level, int mysize, int offset , ASTNode * fparms)
 {
     struct SymbTab * n;
     n=Search(name,level, 0);
