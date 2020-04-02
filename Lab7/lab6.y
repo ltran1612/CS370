@@ -34,6 +34,9 @@ int yylex();
 // the global pointer to the root of the abstract syntax tree of the entire program.
 ASTNode * gp;
 
+// level variable
+int level = 0;
+
 %}
 %start program
 // union

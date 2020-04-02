@@ -8,3 +8,5 @@
 *.swp
 *.yy.c
 y.tab.*
+*.gch
+*.o

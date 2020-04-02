@@ -14,11 +14,12 @@
     We add a routine to remove variables at our level and above.
 */
 
-    
 #include <string.h>
 #include "symtable.h"
+#include "AST.h"
 
-
+// 
+struct SymbTab * first;
 
 char * CreateTemp()
 {    char hold[100];
@@ -26,26 +27,18 @@ char * CreateTemp()
      sprintf(hold,"_t%d",GTEMP++);
      s=strdup(hold);
      return (s);
-
-}
-
-
-
-
-
+} // end CreateTemp
 
 /* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
-
-struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level, int mysize, int offset , ASTnode * fparms)
-
+struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level, int mysize, int offset , ASTNode * fparms)
 {
-  struct SymbTab * n;
+    struct SymbTab * n;
     n=Search(name,level, 0);
     if(n!=NULL)
       {
       printf("\n\tThe name %s exists at level %d already in the symbol table\n\tDuplicate can.t be inserted",name, level);
       return (NULL);
-      }
+      } // end if
     else
     {
       struct SymbTab *p;
@@ -63,25 +56,22 @@ struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level
       if(first==NULL)
       {
         first=p;
-      }
+      } // end if
       else
       {
         p->next=first;
         first=p;
-      }
+      } // end else
       return (p);
- 
-    }
-     
+    } // end else
   printf("\n\tLabel inserted\n");
-}
+} // end insert
 
 /* print out a single symbol table entry -- for debugging */
 void PrintSym(struct SymbTab *s)
 {
          printf("\t%s\t\t%d\t\t%d\n",s->name,s->offset, s->level);
-
-}
+} // end PrintSym
 
 
 /*  General display to see what is our symbol table */
@@ -96,8 +86,8 @@ void Display()
       {
          PrintSym(p);
          p=p->next;
-      }
-}
+      } // end while
+} // end Display
 
 /*  Search for a symbol name at level or below.  We have to do multiple passes into the symbol table because we have to find
    the name closest to us 

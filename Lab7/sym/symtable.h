@@ -13,10 +13,13 @@
 #define SYMTABLE_H
     
     #include<stdio.h>
-    /* #include<conio.h> */
-    #include<malloc.h>
     #include<string.h>
+    /* #include<conio.h> */
+
+    // include stdlib because the mac gcc does not have malloc.h, the malloc function is in stdlib.h
+    //#include<malloc.h>
     #include<stdlib.h>
+    #include "../AST.h"    
 
     // functions prototypes
     // insert an entry with a symbol and offset into the table
@@ -39,6 +42,24 @@
     {
         char * symbol;
         int addr; // add offset
+
+        // taken from Cooper's symtable.h
+
+        /* number of words this item is 1 or more */
+        int words_num;
+
+         /* the level where we found the variable */  
+        int level; 
+
+        /* the type of the symbol */
+        enum OPERATORS type;  
+
+         /* the element is a function */
+        int isFunc; 
+
+        /* pointer to parameters of the function in the AST */
+        ASTNode * fparms; 
+
         struct SymbTab *next; // a pointer to another SymbTab object
     }; // end Symbtab definition
     
