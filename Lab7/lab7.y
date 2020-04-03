@@ -16,6 +16,8 @@
 %{
 // stdio.h for fprintf
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // include access to symbol table
 #include "symtable.h"
@@ -23,13 +25,13 @@
 // include to access the nodes types
 #include "AST.h"
 
-
 // linecount is  by lex
 extern int linecount;
 
 // called yyparase on syntax error
 void yyerror(char const * s) {
     fprintf(stderr, "%s on line %d\n", s, linecount);
+    exit(1);
 } // end yyerror
 
 // prototype to avoid having to include yy.lex.c
@@ -40,6 +42,10 @@ ASTNode * gp;
 
 // level variable
 int level = 0;
+
+// offset
+int offset = 0;
+int GOFFSET; // holds the global offset
 
 %}
 %start program
@@ -147,35 +153,46 @@ var_declaration : type_specifier var_list ';' /*var-declaration → type-specifi
                         ASTNode * p;
                         for (p = $2; p != NULL; p = p->s1) {
                             p->operator = $1;
-                            p->myTab->type = $1;
+                            if (p->myTab != NULL)
+                                p->myTab->type = $1;
                             Display();
                         } // end for p
                         
                         // pass up the pointer
                         $$ = $2;
                     } // end type_specifier var_list
-                ;
+                ; 
 
 var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] , var-list*/
                 {
-                    if (Search($1, level, 0) == NULL) {
-                        // Vardec node for normal variable
-                        $$ = ASTCreateNode(VARDEC);
-
-                        // name of the variable
-                        $$->name = $1;
-
-                        // the size of the variable
-                        $$->value = 1;
-
-                        // Insert the var dec into the table
-                        printf("Insert\n");
-                        $$->myTab = Insert($$->name, 0, level, 1, 0, NULL);
+                    // if duplicate
+                    if (Search($1, level, 0) != NULL) {
+                        yyerror("Duplicate Variable");
                     } // end if
+
+                    // not duplicate
+                    // Vardec node for normal variable
+                    $$ = ASTCreateNode(VARDEC);
+
+                    // name of the variable
+                    $$->name = $1;
+
+                    // the size of the variable
+                    $$->value = 1;
+
+                    // Insert the var dec into the table
+                    printf("Insert\n");
+                    $$->myTab = Insert($$->name, -1, 0, level, 1, offset, NULL);
+
+                    offset += 1; // the size of the element
                 } // end ID
                 
             |   ID '[' NUM ']' 
                 {
+                    if (Search($1, level, 0) != NULL) {
+                        yyerror("Duplicate Variable ");
+                    } // end if
+
                     // Vardec node for array variable
                     $$ = ASTCreateNode(VARDEC);
                     
@@ -184,36 +201,63 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
 
                     // the size of the variable
                     $$->value = $3;
+                    
+                    // Insert the var dec into the table
+                    printf("Insert\n");
+                    $$->myTab = Insert($$->name, -1, 0, level, $3, offset, NULL);
+                    
+                    // increase the offset
+                    offset += $3;
                 } // end ID [NUM]
                 
             |   ID  ',' var_list 
                 {
+                    if (Search($1, level, 0) != NULL) {
+                        yyerror("Duplicate Variable ");
+                    } // end if
+
                     // Vardec node for normal variable
-                   $$ = ASTCreateNode(VARDEC);
+                    $$ = ASTCreateNode(VARDEC);
 
-                   // name of the variable
-                   $$->name = $1;
+                    // name of the variable
+                    $$->name = $1;
 
-                   // the size of the variable 
-                   $$->value = 1;
+                    // the size of the variable 
+                    $$->value = 1;
 
-                   // connect to the next declaration
-                   $$->s1 = $3;
+                    // connect to the next declaration
+                    $$->s1 = $3;
+
+                    // Insert the var dec into the table
+                    printf("Insert\n");
+                    $$->myTab = Insert($$->name, -1, 0, level, 1, offset, NULL);
+                    
+                     offset += 1;
                 } // end ID , var_list
                 
             |   ID '[' NUM ']' ',' var_list 
                 {
+                    if (Search($1, level, 0) != NULL) {
+                        yyerror("Duplicate Variable ");
+                    } // end if
+
                     // Vardec node for array variable
-                   $$ = ASTCreateNode(VARDEC);
-                   
+                    $$ = ASTCreateNode(VARDEC);
+                
                     // name of the variable
-                   $$->name = $1;
+                    $$->name = $1;
 
-                   // the size of the variable
-                   $$->value = $3;
+                    // the size of the variable
+                    $$->value = $3;
 
-                   // connect to the next declaration
-                   $$->s1 = $6;
+                    // connect to the next declaration
+                    $$->s1 = $6;
+
+                    // Insert the var dec into the table
+                    printf("Insert\n");
+                    $$->myTab = Insert($$->name, -1, 0, level, $3, offset, NULL);
+                    
+                    offset += $3;
                 } // end ID [NUM] , var_list
             ;
 
@@ -234,7 +278,13 @@ type_specifier  : INT /*type-specifier → int | void | boolean*/
                     }
                 ;
 
-fun_declaration : type_specifier ID '(' params ')' compound_stmt /*fun-declaration →type-specifier ID ( params ) compound-stmt*/
+fun_declaration : type_specifier ID '(' 
+                    {
+                       GOFFSET = offset;
+                       // leave two for the old stack pointer and base pointer.
+                       offset = 2;
+                    }
+                    params ')' compound_stmt /*fun-declaration →type-specifier ID ( params ) compound-stmt*/
                     {
                         // create node for fun declaration
                         $$ = ASTCreateNode(FUNDEC);
@@ -246,15 +296,16 @@ fun_declaration : type_specifier ID '(' params ')' compound_stmt /*fun-declarati
                         $$->operator = $1;
 
                         // parameters
-                        $$->s1 = $4;
+                        $$->s1 = $5;
 
                         // compound statement
-                        $$->s2 = $6;
+                        $$->s2 = $7;
+
+                        // insert level
+                        $$->myTab = Insert($$->name, $1, 0, level, 1, offset, NULL);
 
                         // on funcdec exit
-                        // int offset-=Delete(1);  /* remove all the symbols from what we put in from the function call*/
-                        // level=0;  /* reset the level */
-                        // int offset = goffset;
+                        offset = GOFFSET;
                     }  // end type_specifier
                 ;
 
@@ -287,6 +338,10 @@ param_list  : param /*param-list → param { , param }*/
             
 param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
             {
+                if (Search($2, level + 1, 0) != NULL) {
+                    yyerror("Duplicate Variable");
+                } // end if
+
                 // Create new node for a non-array parameter
                 $$ = ASTCreateNode(PARAM);
 
@@ -298,10 +353,20 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
 
                 // type of the param
                 $$->operator = $1;
+
+                // insert
+                $$->myTab = Insert($$->name, $1, 0, level + 1, $$->value, offset, NULL);;
+
+                // increment offset
+                offset += 1;
             } // end type_specifier ID
             
         | type_specifier ID '[' ']' 
             {
+                if (Search($2, level + 1, 0) != NULL) {
+                    yyerror("Duplicate Variable");
+                } // end if
+
                 // Create new node for an array parameter
                 $$ = ASTCreateNode(PARAM);
 
@@ -313,6 +378,12 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
 
                 // type of the param
                 $$->operator = $1;
+
+                // insert
+                $$->myTab = Insert($$->name, $1, 0, level + 1, $$->value, offset, NULL);
+
+                // increment offset, 1 because it is a poitner
+                offset += 1;
             } // end type_specifier ID []
         ;
         
@@ -375,26 +446,26 @@ statement   : expression_stmt /*statement → expression-stmt | compound-stmt | 
                 }
             ;
                 
-compound_stmt   : MYBEGIN local_declaration statement_list END /*compound-stmt → begin local-declarations statement-list end*/
+compound_stmt   : MYBEGIN { level++; /*enter compound, increment level*/}
+                    local_declaration statement_list END /*compound-stmt → begin local-declarations statement-list end*/
                     {
-                        // enter compound, increment level
-                        level++;
+                        
 
                         // create new node for compound statement
                         $$ = ASTCreateNode(COMPSTMT);
 
+                        // changes because it is shifted
                         // local declarations
-                        $$->s1 = $2;
+                        $$->s1 = $3;
 
-                        // statements
-                        $$->s2 = $3;
+                        // statements 
+                        $$->s2 = $4;
 
-                        // exit compound, decrement level
+                        // exit compound
+                        offset -= Delete(level);  /* decrease the offset count by the size of values allocated at level */
+
+                        // also, decrement level
                         level--;
-                        
-                        // also
-                        Display();  /* display symbol table as per requirement */
-                        // offset -= Delete(level);  /* decrease the offset count by the size of values allocated at level */
                     }
                 ;
                 
@@ -790,8 +861,10 @@ arg_list    : expression /*arg-list → expression { , expression }*/
 int main() {
     if (!yyparse())
         fprintf(stderr, "The program is syntactically correct\n");
-        
+
+    fprintf(stderr, "%d", level); 
     // print out the syntas tree
-    ASTprint(gp, 0);
+    // ASTprint(gp, 0);
+
 
 } // end main

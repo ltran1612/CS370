@@ -37,7 +37,7 @@ struct SymbTab
 }; // end SymbTab struct definition
 
 
-struct SymbTab * Insert(char * name, int isFunc, int level, int mysize, int offset, ASTNode * fparms );
+struct SymbTab * Insert(char * name, enum OPERATORS type, int isFunc, int level, int mysize, int offset, ASTNode * fparms );
 struct SymbTab * Search(char * name, int level, int recur);
 void Display();
 int Delete();

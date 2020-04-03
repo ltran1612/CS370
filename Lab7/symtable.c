@@ -24,7 +24,7 @@
 int GTEMP = 0;
 
 // 
-struct SymbTab * first;
+struct SymbTab * first = NULL;
 
 char * CreateTemp()
 {    char hold[100];
@@ -35,15 +35,15 @@ char * CreateTemp()
 } // end CreateTemp
 
 /* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
-struct SymbTab * Insert(char *name, int isFunc, int  level, int size, int offset , ASTNode * fparms)
+struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level, int size, int offset , ASTNode * fparms)
 {
   struct SymbTab * n;
   n=Search(name,level, 0);
   if(n!=NULL)
-    {
-    printf("\n\tThe name %s exists at level %d already in the symbol table\n\tDuplicate can.t be inserted",name, level);
-    return (NULL);
-    } // end if
+  {
+  fprintf(stderr, "\n\tThe name %s exists at level %d already in the symbol table\n\tDuplicate can.t be inserted",name, level);
+  return (NULL);
+  } // end if
   else
   {
     struct SymbTab *p;
@@ -52,7 +52,7 @@ struct SymbTab * Insert(char *name, int isFunc, int  level, int size, int offset
     p->offset = offset;  /* assign the offset */
     p->level = level;  /* assign the level */
     p->size = size;  /* assign the size */
-    //p->type = type;  /* assign the Type */
+    p->type = type;  /* assign the Type */
     p->isFunc = isFunc;  /* assign the Function  */
     p->fparms = fparms;  /* assign the Function  */
     p->next = NULL;
@@ -81,6 +81,7 @@ void PrintSym(struct SymbTab *s)
 {
   fprintf(stderr, "\t%s\t\t%d\t\t%d\t\t",s->name,s->offset, s->level);
   printOperator(s->type);
+  fprintf(stderr, "\t\t%d", s->size);
   fprintf(stderr, "\n");
 } // end PrintSym
 
@@ -90,7 +91,7 @@ void Display()
   int i;
   struct SymbTab *p;
   p=first;
-  printf("\n\tLABEL\t\tOffset\t\tLEVEL\t\tTYPE\n");
+  printf("\n\tLABEL\t\tOffset\t\tLEVEL\t\tTYPE\t\tSIZE\n");
   while (p!=NULL)
   {
       PrintSym(p);
