@@ -81,7 +81,7 @@ void PrintSym(struct SymbTab *s)
 {
   fprintf(stderr, "\t%s\t\t%d\t\t%d\t\t",s->name,s->offset, s->level);
   printOperator(s->type);
-  fprintf(stderr, "\t\t%d\t\t%d", s->size, s->type);
+  fprintf(stderr, "\t\t%d\t\t%d", s->size, s->isFunc);
   fprintf(stderr, "\n");
 } // end PrintSym
 

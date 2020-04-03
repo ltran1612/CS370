@@ -302,7 +302,7 @@ fun_declaration : type_specifier ID '('
                         $$->s2 = $7;
 
                         // insert level
-                        $$->myTab = Insert($$->name, $1, 0, level, 1, offset, NULL);
+                        $$->myTab = Insert($$->name, $1, 1, level, 1, offset, $$->s1);
 
                         // on funcdec exit
                         offset = GOFFSET;
