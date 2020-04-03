@@ -81,7 +81,7 @@ void PrintSym(struct SymbTab *s)
 {
   fprintf(stderr, "\t%s\t\t%d\t\t%d\t\t",s->name,s->offset, s->level);
   printOperator(s->type);
-  fprintf(stderr, "\t\t%d", s->size);
+  fprintf(stderr, "\t\t%d\t\t%d", s->size, s->type);
   fprintf(stderr, "\n");
 } // end PrintSym
 
@@ -91,7 +91,7 @@ void Display()
   int i;
   struct SymbTab *p;
   p=first;
-  printf("\n\tLABEL\t\tOffset\t\tLEVEL\t\tTYPE\t\tSIZE\n");
+  printf("\n\tLABEL\t\tOffset\t\tLEVEL\t\tTYPE\t\tSIZE\t\tISFUNC\n");
   while (p!=NULL)
   {
       PrintSym(p);
