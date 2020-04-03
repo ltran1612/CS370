@@ -79,7 +79,9 @@ struct SymbTab * Insert(char *name, int isFunc, int  level, int size, int offset
 /* print out a single symbol table entry -- for debugging */
 void PrintSym(struct SymbTab *s)
 {
-  printf("\t%s\t\t%d\t\t%d\n",s->name,s->offset, s->level);
+  fprintf(stderr, "\t%s\t\t%d\t\t%d\t\t",s->name,s->offset, s->level);
+  printOperator(s->type);
+  fprintf(stderr, "\n");
 } // end PrintSym
 
 /*  General display to see what is our symbol table */
@@ -88,7 +90,7 @@ void Display()
   int i;
   struct SymbTab *p;
   p=first;
-  printf("\n\tLABEL\t\tOffset \t LEVEL\n");
+  printf("\n\tLABEL\t\tOffset\t\tLEVEL\t\tTYPE\n");
   while (p!=NULL)
   {
       PrintSym(p);

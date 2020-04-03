@@ -147,6 +147,8 @@ var_declaration : type_specifier var_list ';' /*var-declaration → type-specifi
                         ASTNode * p;
                         for (p = $2; p != NULL; p = p->s1) {
                             p->operator = $1;
+                            p->myTab->type = $1;
+                            Display();
                         } // end for p
                         
                         // pass up the pointer
@@ -169,7 +171,6 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                         // Insert the var dec into the table
                         printf("Insert\n");
                         $$->myTab = Insert($$->name, 0, level, 1, 0, NULL);
-                        Display();
                     } // end if
                 } // end ID
                 
