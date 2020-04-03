@@ -1,5 +1,5 @@
 /*
-    File Name: lab6.y
+    File Name: lab7.y
     Description: This yacc routine will parse the input and checks if the program matches the syntax of the ALGOL_C. It will print out any possible syntax error with the line on which the error is.
     Author: Long Tran
     Date: March 28th, 2020

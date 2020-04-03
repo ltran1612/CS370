@@ -1,5 +1,5 @@
 /*
-    File Name: lab6.l
+    File Name: lab7.l
     Description: This lex routine will analyze the input given from yacc and return the appropriate tokens: INT, VOID, BOOLEAN, MYBEGIN, END, IF, THEN, ELSE, WHILE, DO, RETURN, READ, WRITE, LE, GE, EQ, NE, AND, OR, NOT, TRUE, FALSE, NUM, ID, '-', '+', '*', '/', '=', '(', ')', ',', ';', '<', '>', '[', ']'. 
     For NUM and ID, it will return with companion value.
     Author: Long Tran
