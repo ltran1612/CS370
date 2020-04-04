@@ -605,6 +605,10 @@ expression  : simple_expression /*expression → simple-expression*/
             
 var : ID  /*var → ID [ [ expression ] ] +*/
         {
+            if (Search($1, level, 1) == NULL) {
+                yyerror("Variable not defined");
+            } // end if
+
             // a single identifier
             $$ = ASTCreateNode(IDENT);
 
@@ -617,6 +621,10 @@ var : ID  /*var → ID [ [ expression ] ] +*/
         
     | ID '['expression']' 
         {
+             if (Search($1, level, 1) == NULL) {
+                yyerror("Variable not defined");
+            } // end if
+            
             // an array
             $$ = ASTCreateNode(IDENT);
 
