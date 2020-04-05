@@ -85,6 +85,8 @@ enum NodeType {
 // call
     FUNCALL,
 
+    ARG,
+
 // Variable
     VAR,
 

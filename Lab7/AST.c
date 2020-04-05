@@ -405,6 +405,12 @@ void ASTprint(ASTNode *p, int level) {
             } // end else
             break; // of FUNCALL
         } // end funcall
+
+        case ARG:
+        {
+            ASTprint(p->s1, level);
+            break; // of ARG
+        } // end ARG
 		
         // default type when a new type of node is found
         default: 

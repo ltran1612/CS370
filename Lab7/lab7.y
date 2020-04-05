@@ -849,15 +849,17 @@ args    : /*empty*/ /*args → arg-list | empty*/
         
 arg_list    : expression /*arg-list → expression { , expression }*/
                 {
-                    // pass up the value
-                    $$ = $1;
+                    // Create new argument node
+                    $$ = ASTCreateNode(ARG);
+                    $$->s1 = $1; 
                 }
             | expression ',' arg_list
                 {
                     // argument list
 
-                    // pass up the pointer
-                    $$ = $1;
+                    // Create new argument node
+                    $$ = ASTCreateNode(ARG);
+                    $$->s1 = $1; 
 
                     // connect to the next expression  
                     $$->next = $3;
@@ -872,7 +874,7 @@ int main() {
 
     fprintf(stderr, "%d", level); 
     // print out the syntas tree
-    // ASTprint(gp, 0);
+    ASTprint(gp, 0);
 
 
 } // end main
