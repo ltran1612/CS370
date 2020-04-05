@@ -46,6 +46,7 @@ int level = 0;
 // offset
 int offset = 0;
 int GOFFSET; // holds the global offset
+int MAXOFFSET; // the maximum
 
 %}
 %start program
@@ -153,8 +154,7 @@ var_declaration : type_specifier var_list ';' /*var-declaration → type-specifi
                         ASTNode * p;
                         for (p = $2; p != NULL; p = p->s1) {
                             p->operator = $1;
-                            if (p->myTab != NULL)
-                                p->myTab->type = $1;
+                            Search(p->name, level, 0)->type = $1;
                             Display();
                         } // end for p
                         
@@ -280,12 +280,22 @@ type_specifier  : INT /*type-specifier → int | void | boolean*/
 
 fun_declaration : type_specifier ID '(' 
                     {
-                       GOFFSET = offset;
-                       // leave two for the old stack pointer and base pointer.
-                       offset = 2;
-                    }
+                        if (Search($2, level, 0) != NULL) {
+                            yyerror("Duplicate func dec");
+                        } // end if
+
+                        Insert($2, $1, 1, level, 0, 0, NULL);
+                                
+                        GOFFSET = offset;
+
+                        // leave two for the old stack pointer and base pointer.
+                        offset = 0;
+                        
+                        MAXOFFSET = offset;
+                    }          
                     params ')' compound_stmt /*fun-declaration →type-specifier ID ( params ) compound-stmt*/
                     {
+                        // we assume MAXOFFSET is the maximum memory needed
                         // create node for fun declaration
                         $$ = ASTCreateNode(FUNDEC);
 
@@ -301,9 +311,7 @@ fun_declaration : type_specifier ID '('
                         // compound statement
                         $$->s2 = $7;
 
-                        // insert level
-                        $$->myTab = Insert($$->name, $1, 1, level, 1, offset, $$->s1);
-
+                        Search($2, 0, 0)->size = MAXOFFSET;
                         // on funcdec exit
                         offset = GOFFSET;
                     }  // end type_specifier
@@ -461,11 +469,16 @@ compound_stmt   : MYBEGIN { level++; /*enter compound, increment level*/}
                         // statements 
                         $$->s2 = $4;
 
+                        if (offset > MAXOFFSET)
+                            MAXOFFSET = offset;
+
                         // exit compound
                         offset -= Delete(level);  /* decrease the offset count by the size of values allocated at level */
 
                         // also, decrement level
                         level--;
+
+                        
                     }
                 ;
                 
@@ -827,7 +840,7 @@ call    : ID '(' args ')' /*call → ID ( args )*/
                 if (Search($1, 0, 0) == NULL) {
                     yyerror("Function has not been defined");
                 } // end if
-                
+
                 // Create a node for call statement
                $$ = ASTCreateNode(FUNCALL);
 
