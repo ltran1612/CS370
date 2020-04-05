@@ -408,6 +408,7 @@ void ASTprint(ASTNode *p, int level) {
 
         case ARG:
         {
+            // print the expression of the argument
             ASTprint(p->s1, level);
             break; // of ARG
         } // end ARG

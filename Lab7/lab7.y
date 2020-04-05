@@ -824,6 +824,10 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
 
 call    : ID '(' args ')' /*call → ID ( args )*/
             {
+                if (Search($1, 0, 0) == NULL) {
+                    yyerror("Function has not been defined");
+                } // end if
+                
                 // Create a node for call statement
                $$ = ASTCreateNode(FUNCALL);
 
