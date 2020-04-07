@@ -408,8 +408,10 @@ void ASTprint(ASTNode *p, int level) {
 
         case ARG:
         {
+            PT(level);
+            fprintf(stderr, "ARGUEMENT\n");
             // print the expression of the argument
-            ASTprint(p->s1, level);
+            ASTprint(p->s1, level + level1);
             break; // of ARG
         } // end ARG
 		
