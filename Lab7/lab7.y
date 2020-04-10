@@ -182,7 +182,7 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
 
                     // Insert the var dec into the table
                     printf("Insert\n");
-                    $$->myTab = Insert($$->name, -1, 0, level, 1, offset, NULL);
+                    $$->myTab = Insert($$->name, -1, 0, 0, level, 1, offset, NULL);
 
                     offset += 1; // the size of the element
                 } // end ID
@@ -204,7 +204,7 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                     
                     // Insert the var dec into the table
                     printf("Insert\n");
-                    $$->myTab = Insert($$->name, -1, 0, level, $3, offset, NULL);
+                    $$->myTab = Insert($$->name, -1, 0, 1, level, $3, offset, NULL);
                     
                     // increase the offset
                     offset += $3;
@@ -230,7 +230,7 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
 
                     // Insert the var dec into the table
                     printf("Insert\n");
-                    $$->myTab = Insert($$->name, -1, 0, level, 1, offset, NULL);
+                    $$->myTab = Insert($$->name, -1, 0, 0, level, 1, offset, NULL);
                     
                      offset += 1;
                 } // end ID , var_list
@@ -255,7 +255,7 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
 
                     // Insert the var dec into the table
                     printf("Insert\n");
-                    $$->myTab = Insert($$->name, -1, 0, level, $3, offset, NULL);
+                    $$->myTab = Insert($$->name, -1, 0, 1, level, $3, offset, NULL);
                     
                     offset += $3;
                 } // end ID [NUM] , var_list
@@ -284,7 +284,7 @@ fun_declaration : type_specifier ID '('
                             yyerror("Duplicate func dec");
                         } // end if
 
-                        Insert($2, $1, 1, level, 0, 0, NULL);
+                        Insert($2, $1, 1, 0, level, 0, 0, NULL);
                                 
                         GOFFSET = offset;
 
@@ -363,7 +363,7 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
                 $$->operator = $1;
 
                 // insert
-                $$->myTab = Insert($$->name, $1, 0, level + 1, 1, offset, NULL);;
+                $$->myTab = Insert($$->name, $1, 0, 0, level + 1, 1, offset, NULL);;
 
                 // increment offset
                 offset += 1;
@@ -388,7 +388,7 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
                 $$->operator = $1;
 
                 // insert
-                $$->myTab = Insert($$->name, $1, 0, level + 1, 1, offset, NULL);
+                $$->myTab = Insert($$->name, $1, 0, 1, level + 1, 1, offset, NULL);
 
                 // increment offset, 1 because it is a poitner
                 offset += 1;
@@ -624,7 +624,7 @@ var : ID  /*var → ID [ [ expression ] ] +*/
                 yyerror("Variable not defined");
             } // end if
 
-            if (instance->size > 1) {
+            if (instance->isArray) {
                 yyerror("Variable is an array");
             } // end if 
 
@@ -645,7 +645,7 @@ var : ID  /*var → ID [ [ expression ] ] +*/
                 yyerror("Variable not defined");
             } // end if
 
-            if (instance->size == 1) {
+            if (!instance->isArray) {
                 yyerror("Variable is not an array");
             } // end if
             

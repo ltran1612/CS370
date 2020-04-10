@@ -31,13 +31,14 @@ struct SymbTab
      int level;  /* the level where we found the variable */
      enum OPERATORS type;  /* the type of the symbol */
      int isFunc;  /* the element is a function */
+     int isArray;
      ASTNode * fparms; /* pointer to parameters of the function in the AST */
 
      struct SymbTab *next;
 }; // end SymbTab struct definition
 
 
-struct SymbTab * Insert(char * name, enum OPERATORS type, int isFunc, int level, int mysize, int offset, ASTNode * fparms );
+struct SymbTab * Insert(char * name, enum OPERATORS type, int isFunc, int isArray, int level, int mysize, int offset, ASTNode * fparms );
 struct SymbTab * Search(char * name, int level, int recur);
 void Display();
 int Delete();
