@@ -1,15 +1,10 @@
-int a, b[10], c[2];
-int f(int m, int n[])
+int f(boolean a, int b, boolean c[])
 begin
-
-int a;
-int u[10];
-
+	return 1;
+end
+int main(void)
 begin
-boolean d[12];
-void j[12];
+int x;
+boolean m[12];
+x = f(true, 2, m) + 8;
 end
-end
-
-int d;
-

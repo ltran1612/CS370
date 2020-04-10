@@ -108,6 +108,9 @@ typedef struct ASTNode {
     // and comparison operators
     enum OPERATORS operator;
 
+    // data type
+    enum OPERATORS sem_type; // this may be is DATATYPE
+
     // use for the name of nodes like variable, and functions
     char * name;
     
@@ -115,7 +118,7 @@ typedef struct ASTNode {
     int value;
 
     // a pointer to a tab in symbol table
-    struct SymbTab * myTab;
+    struct SymbTab * symbol;
     
     // links to the next statement or declaration
     struct ASTNode *next;
@@ -136,4 +139,6 @@ void ASTprint(ASTNode *p, int level);
 
 // print the type of operator from the given enum OPERATORS
 void printOperator(enum OPERATORS op);
+
+int check_parameters(struct ASTNode * fparam, struct ASTNode * aparam);
 #endif  // of AST_H

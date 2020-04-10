@@ -25,7 +25,7 @@ ASTNode * ASTCreateNode(enum NodeType type) {
     p->s1 = NULL;
     p->s2 = NULL;
     p->next = NULL;
-    p->myTab = NULL;
+    p->symbol = NULL;
 
 	// return a pointer to that newly created node
     return p;
@@ -496,3 +496,16 @@ void printOperator(enum OPERATORS op) {
             fprintf(stderr, "Undefined type\n");
     } // end switch
 } // end printOperator
+
+
+// 1 if Okay, 0 if not okay
+int check_parameters(struct ASTNode * fparam, struct ASTNode * aparam) {
+    // base cases
+    if (fparam == NULL && aparam == NULL) return 1;
+    if (fparam == NULL || aparam == NULL) return 0;
+
+    // fparam and aparam is not null
+    if (fparam->sem_type != aparam->sem_type) return 0;
+
+    return check_parameters(fparam->next, aparam->next);
+} // end if
