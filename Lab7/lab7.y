@@ -363,7 +363,7 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
                 $$->operator = $1;
 
                 // insert
-                $$->myTab = Insert($$->name, $1, 0, level + 1, $$->value, offset, NULL);;
+                $$->myTab = Insert($$->name, $1, 0, level + 1, 1, offset, NULL);;
 
                 // increment offset
                 offset += 1;
@@ -388,7 +388,7 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
                 $$->operator = $1;
 
                 // insert
-                $$->myTab = Insert($$->name, $1, 0, level + 1, $$->value, offset, NULL);
+                $$->myTab = Insert($$->name, $1, 0, level + 1, 1, offset, NULL);
 
                 // increment offset, 1 because it is a poitner
                 offset += 1;
@@ -473,6 +473,7 @@ compound_stmt   : MYBEGIN { level++; /*enter compound, increment level*/}
                             MAXOFFSET = offset;
 
                         // exit compound
+                        Display();
                         offset -= Delete(level);  /* decrease the offset count by the size of values allocated at level */
 
                         // also, decrement level
@@ -618,9 +619,14 @@ expression  : simple_expression /*expression → simple-expression*/
             
 var : ID  /*var → ID [ [ expression ] ] +*/
         {
-            if (Search($1, level, 1) == NULL) {
+            struct SymbTab * instance = Search($1, level, 1);
+            if (instance == NULL) {
                 yyerror("Variable not defined");
             } // end if
+
+            if (instance->size > 1) {
+                yyerror("Variable is an array");
+            } // end if 
 
             // a single identifier
             $$ = ASTCreateNode(IDENT);
@@ -634,8 +640,13 @@ var : ID  /*var → ID [ [ expression ] ] +*/
         
     | ID '['expression']' 
         {
-             if (Search($1, level, 1) == NULL) {
+            struct SymbTab * instance = Search($1, level, 1);
+            if (instance == NULL) {
                 yyerror("Variable not defined");
+            } // end if
+
+            if (instance->size == 1) {
+                yyerror("Variable is not an array");
             } // end if
             
             // an array
@@ -837,8 +848,13 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
 
 call    : ID '(' args ')' /*call → ID ( args )*/
             {
-                if (Search($1, 0, 0) == NULL) {
+                struct SymbTab * instance = Search($1, 0, 0);
+                if (instance == NULL) {
                     yyerror("Function has not been defined");
+                } // end if
+
+                if (!instance->isFunc) {
+                    yyerror("It is not a function");
                 } // end if
 
                 // Create a node for call statement
