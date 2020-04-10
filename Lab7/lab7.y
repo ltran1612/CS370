@@ -18,37 +18,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 // include access to symbol table
 #include "symtable.h"
-
 // include to access the nodes types
 #include "AST.h"
 
 // linecount is  by lex
 extern int linecount;
-
-// called yyparase on syntax error
-void yyerror(char const * s) {
-    fprintf(stderr, "%s on line %d\n", s, linecount);
-    exit(1);
-} // end yyerror
-
 // prototype to avoid having to include yy.lex.c
-int yylex();
-
 // the global pointer to the root of the abstract syntax tree of the entire program.
 ASTNode * gp;
-
 // level variable
 int level = 0;
-
 // offset
 // current offset at the global level or in a function
 // offset is measured in words.
 int offset = 0; 
 int GOFFSET; // holds the global offset
 int MAXOFFSET; // the maximum amount of memory needed for the current function
+
+// functions
+int yylex();
+// called yyparase on syntax error
+void yyerror(char const * s) {
+    fprintf(stderr, "%s on line %d\n", s, linecount);
+    exit(1);
+} // end yyerror
 
 %}
 %start program
@@ -175,90 +170,78 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                     // not duplicate
                     // Vardec node for normal variable
                     $$ = ASTCreateNode(VARDEC);
-
                     // name of the variable
                     $$->name = $1;
-
                     // the size of the variable
                     $$->value = 1;
 
                     // Insert the var dec into the table
-                    printf("Insert\n");
                     Insert($$->name, -1, 0, level, 1, offset, NULL);
-
-                    offset += 1; // the size of the element
+                    // increment the offset
+                    offset += 1; 
                 } // end ID
                 
             |   ID '[' NUM ']' 
                 {
+                    // duplicate variable
                     if (Search($1, level, 0) != NULL) {
                         yyerror("Duplicate Variable ");
                     } // end if
 
                     // Vardec node for array variable
                     $$ = ASTCreateNode(VARDEC);
-                    
                     // name of the variable
                     $$->name = $1;
-
                     // the size of the variable
                     $$->value = $3;
                     
                     // Insert the var dec into the table
-                    printf("Insert\n");
                     Insert($$->name, -1, 2, level, $3, offset, NULL);
-                    
                     // increase the offset
                     offset += $3;
                 } // end ID [NUM]
                 
             |   ID  ',' var_list 
                 {
+                    // duplicate variable
                     if (Search($1, level, 0) != NULL) {
                         yyerror("Duplicate Variable ");
                     } // end if
 
                     // Vardec node for normal variable
                     $$ = ASTCreateNode(VARDEC);
-
                     // name of the variable
                     $$->name = $1;
-
                     // the size of the variable 
                     $$->value = 1;
-
                     // connect to the next declaration
                     $$->s1 = $3;
 
                     // Insert the var dec into the table
-                    printf("Insert\n");
                     Insert($$->name, -1, 0, level, 1, offset, NULL);
-                    
-                     offset += 1;
+                    // increment the offset
+                    offset += 1;
                 } // end ID , var_list
                 
             |   ID '[' NUM ']' ',' var_list 
                 {
+                    // duplicate variable
                     if (Search($1, level, 0) != NULL) {
                         yyerror("Duplicate Variable ");
                     } // end if
 
                     // Vardec node for array variable
                     $$ = ASTCreateNode(VARDEC);
-                
                     // name of the variable
                     $$->name = $1;
-
                     // the size of the variable
                     $$->value = $3;
-
                     // connect to the next declaration
                     $$->s1 = $6;
 
                     // Insert the var dec into the table
-                    printf("Insert\n");
                     Insert($$->name, -1, 2, level, $3, offset, NULL);
-                    
+                    // increase the offset
                     offset += $3;
                 } // end ID [NUM] , var_list
             ;
@@ -282,17 +265,19 @@ type_specifier  : INT /*type-specifier → int | void | boolean*/
 
 fun_declaration : type_specifier ID '(' 
                     {
+                        // duplicate declaration of the same name
                         if (Search($2, level, 0) != NULL) {
                             yyerror("Duplicate func dec");
                         } // end if
 
+                        // insert the definition of the variable
                         Insert($2, $1, 1, level, 0, 0, NULL);
                                 
+                        // save the offset
                         GOFFSET = offset;
-
-                        // leave two for the old stack pointer and base pointer.
+                        // reset offset leave two for the old stack pointer and base pointer.
                         offset = 2;
-                        
+                        // initialize MAXOFFSET
                         MAXOFFSET = offset;
                     }          
                     params ')' 
@@ -307,21 +292,19 @@ fun_declaration : type_specifier ID '('
                         // we assume MAXOFFSET is the maximum memory needed
                         // create node for fun declaration
                         $$ = ASTCreateNode(FUNDEC);
-
                         // name
                         $$->name = $2;
-
                         // return type
                         $$->operator = $1;
-
                         // parameters
                         $$->s1 = $5;
-
                         // compound statement
                         $$->s2 = $8;
 
+                        // set the size of the function to be MAXOFFSET
                         Search($2, 0, 0)->size = MAXOFFSET;
-                        // on funcdec exit
+
+                        // on funcdec exit, reset offset to saved global offset
                         offset = GOFFSET;
                     }  // end type_specifier
                 ;
@@ -355,54 +338,48 @@ param_list  : param /*param-list → param { , param }*/
             
 param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
             {
+                // duplicate variable declaration
                 if (Search($2, level + 1, 0) != NULL) {
                     yyerror("Duplicate Variable");
                 } // end if
 
                 // Create new node for a non-array parameter
                 $$ = ASTCreateNode(PARAM);
-
                 // name of the param
                 $$->name = $2;
-
                 // not an array, size is 1
                 $$->value = 1;
-
                 // type of the param
                 $$->operator = $1;
-
+                /// set the semantic type of param
                 $$->sem_type = $1;
 
                 // insert
                 Insert($$->name, $1, 0, level + 1, 1, offset, NULL);;
-
                 // increment offset
                 offset += 1;
             } // end type_specifier ID
             
         | type_specifier ID '[' ']' 
             {
+                // duplicate variable
                 if (Search($2, level + 1, 0) != NULL) {
                     yyerror("Duplicate Variable");
                 } // end if
 
                 // Create new node for an array parameter
                 $$ = ASTCreateNode(PARAM);
-
                 // name of the param
                 $$->name = $2;
-
                 // an array, size is 2
                 $$->value = 2;
-
                 // type of the param
                 $$->operator = $1;
-
+                // set the semantic type for param
                 $$->sem_type = $1;
 
                 // insert
                 Insert($$->name, $1, 2, level + 1, 1, offset, NULL);
-
                 // increment offset, 1 because it is a poitner
                 offset += 1;
             } // end type_specifier ID []
@@ -467,21 +444,21 @@ statement   : expression_stmt /*statement → expression-stmt | compound-stmt | 
                 }
             ;
                 
-compound_stmt   : MYBEGIN { level++; /*enter compound, increment level*/}
+compound_stmt   : MYBEGIN   
+                    { 
+                        level++; /*enter compound, increment level*/
+                    }
                     local_declaration statement_list END /*compound-stmt → begin local-declarations statement-list end*/
                     {
-                        
-
                         // create new node for compound statement
                         $$ = ASTCreateNode(COMPSTMT);
-
-                        // changes because it is shifted
+                        // changed to $3 because it is shifted
                         // local declarations
                         $$->s1 = $3;
-
                         // statements 
                         $$->s2 = $4;
 
+                        // set up the MAXOFFSET
                         if (offset > MAXOFFSET)
                             MAXOFFSET = offset;
 
@@ -490,9 +467,7 @@ compound_stmt   : MYBEGIN { level++; /*enter compound, increment level*/}
                         offset -= Delete(level);  /* decrease the offset count by the size of values allocated at level */
 
                         // also, decrement level
-                        level--;
-
-                        
+                        level--;   
                     }
                 ;
                 
@@ -612,6 +587,7 @@ write_stmt  : WRITE expression ';' /*write-stmt → write expression;*/
 
 assignment_stmt : var '=' simple_expression ';' /*assignment-stmt → var = simple-expression ;*/
                     {
+                        // check if the type on both size of the assignment statement matched.
                        if ($1->sem_type != $3->sem_type) {
                            yyerror("Type mismatch on assignment");
                        } // end if
@@ -643,55 +619,54 @@ var : ID  /*var → ID [ [ expression ] ] +*/
                 1 - function
                 2 - array
             */
+            // variable not defined
             struct SymbTab * instance = Search($1, level, 1);
             if (instance == NULL) {
                 yyerror("Variable not defined");
             } // end if
 
+            // not a normal variable
             if (instance->isFunc != 0) {
                 yyerror("needs to be a scalar");
             } // end if
 
             // a single identifier
             $$ = ASTCreateNode(IDENT);
-
             // the name of the identifier
             $$->name = $1;
-
             // a single identifier, so the size is 1
             $$->value = 1;
-        
+            // set the semantic type for the variable
             $$->sem_type = instance->type;
-
-            $$->symbol = instance; // store the symbol table pointer
+            // store the symbol table pointer
+            $$->symbol = instance; 
         } // end  ID
         
     | ID '['expression']' 
         {
+            // variable not defined
             struct SymbTab * instance = Search($1, level, 1);
             if (instance == NULL) {
                 yyerror("Variable not defined");
             } // end if
 
+            // not an array
             if (instance->isFunc != 2) {
                 yyerror("Needs to be an array");
             } // end if
             
             // an array
             $$ = ASTCreateNode(IDENT);
-
             // the name of the identifier
             $$->name = $1;
-                   
             // fake number to help identify that this is accessed as an array
             $$->value = 2;
-
             // the expression
             $$->s1 = $3;
-
+            // set up the semantic type for the variable
             $$->sem_type = instance->type;
-
-            $$->symbol = instance; // store the symbol table pointer
+            // store the symbol table pointer
+            $$->symbol = instance; 
         } // end ID []
     ;
 
@@ -702,22 +677,20 @@ simple_expression   : additive_expression /*simple-expression → additive-expre
                         }
                     | simple_expression relop additive_expression
                         {
+                            // check if the type of the operands are the same
                             if  ($1->sem_type != $3->sem_type) {
                                 yyerror("Type mismatch");
                             } // end if
 
                             // create new node
                             $$ = ASTCreateNode(EXPR);
-                            
                             // simple_expression
                             $$->s1 = $1;
-                            
                             // relop operator
                             $$->operator = $2;
-                            
                             // additive_expression
                             $$->s2 = $3;
-
+                            // set the semantic type of the expression
                             $$->sem_type = $1->sem_type;
                         }
                     ;
@@ -761,22 +734,20 @@ additive_expression : term /*additive-expression → term { addop term } (left-a
                         }
                     | additive_expression addop term
                         {
+                            // check if the type of the operands are the same
                             if  ($1->sem_type != $3->sem_type) {
                                 yyerror("Type mismatch");
                             } // end if
 
                             // create new node
                             $$ = ASTCreateNode(EXPR);
-                            
                             // additive expression
                             $$->s1 = $1;
-                            
                             // addop opeartor
                             $$->operator = $2;
-                            
                             // term
                             $$->s2 = $3;
-
+                            // set the semantic type of the expression
                             $$->sem_type = $1->sem_type;
                         }
                     ;
@@ -800,22 +771,20 @@ term    : factor /*term → factor { multop factor } (left-associative)*/
             }
         | term multop factor   
             {
+                // check if the types of the operands are the same
                 if  ($1->sem_type != $3->sem_type) {
                     yyerror("Type mismatch");
                 } // end if
 
                 // new node
                 $$ = ASTCreateNode(EXPR);
-                
                 // term
                 $$->s1 = $1;
-                
                 // multop operator
                 $$->operator = $2;
-                
                 // factor
                 $$->s2 = $3;
-
+                // set the semantic type of the expression
                 $$->sem_type = $1->sem_type;
             }
         ;
@@ -854,9 +823,8 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
                
                // set the value of NUM
                $$->value = $1;
-
+                // set the semantic type of number
                $$->sem_type = INTTYPE;
-               
             } // end NUM
             
         | var
@@ -868,7 +836,6 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
             {
                 // pass up the pointer
                 $$ = $1;
-
             }
         | TRUE
             {
@@ -877,7 +844,7 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
 
                 // True will be 1
                 $$->value = 1;
-
+                // set the semantic type of BOOLEAN value True
                 $$->sem_type = BOOLTYPE;
                
             }
@@ -888,7 +855,7 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
 
                 // False will be 0
                 $$->value = 0;
-
+                 // set the semantic type of BOOLEAN value False
                 $$->sem_type = BOOLTYPE;
 
             }
@@ -901,13 +868,11 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
 
                 // Create a node for expression statement
                 $$ = ASTCreateNode(EXPR);
-                         
                 // operator
                 $$->operator = NOTOP;
-
                 // factor
                 $$->s1 = $2;
-
+                // set the semantic type of this expression
                 $$->sem_type = $2->sem_type;
             }
         ;
