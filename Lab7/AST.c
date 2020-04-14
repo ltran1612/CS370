@@ -504,7 +504,7 @@ int check_parameters(struct ASTNode * fparam, struct ASTNode * aparam) {
     if (fparam == NULL && aparam == NULL) return 1;
     if (fparam == NULL || aparam == NULL) return 0;
 
-    // fparam and aparam is not null
+    // fparam and aparam is not null, check if they have the same type
     if (fparam->sem_type != aparam->sem_type) return 0;
 
     return check_parameters(fparam->next, aparam->next);

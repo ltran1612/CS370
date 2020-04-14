@@ -152,11 +152,12 @@ var_declaration : type_specifier var_list ';' /*var-declaration → type-specifi
                         for (p = $2; p != NULL; p = p->s1) {
                             p->operator = $1;
                             Search(p->name, level, 0)->type = $1;
-                            Display();
                         } // end for p
                         
                         // pass up the pointer
                         $$ = $2;
+
+                        Display();
                     } // end type_specifier var_list
                 ; 
 
@@ -626,7 +627,7 @@ var : ID  /*var → ID [ [ expression ] ] +*/
             } // end if
 
             // not a normal variable
-            if (instance->isFunc != 0) {
+            if (instance->isFunc == 1) {
                 yyerror("needs to be a scalar");
             } // end if
 

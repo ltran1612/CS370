@@ -91,7 +91,7 @@ void Display()
   int i;
   struct SymbTab *p;
   p=first;
-  printf("\n\tLABEL\t\tOffset\t\tLEVEL\t\tTYPE\t\tSIZE\t\tISFUNC\n");
+  fprintf(stderr, "\n\tLABEL\t\tOffset\t\tLEVEL\t\tTYPE\t\tSIZE\t\tISFUNC\n");
   while (p!=NULL)
   {
       PrintSym(p);

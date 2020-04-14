@@ -1,0 +1,32 @@
+## We must test
+
+Duplication
++ duplicate scalar
++ duplicate array
++ duplicate functions
+
+Type Assignment
++ Assign void to int
++ Assign void to boolean
++ Assign boolean to int
++ Assign boolean to void
++ Assign int to void
++ Assignt int to boolean
+
+Type Mathematic operations
++ int and boolean
++ int and void
++ boolean and void
+
+Functions parameters
++ Not enough amount of parameters
++ Wrong parameters types.
+
+Usesage:
++ Use var as a function
++ use function as a var
++ Use undeclare variable
++ Use undeclare function
+
+
+
