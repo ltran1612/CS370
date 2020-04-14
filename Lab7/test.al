@@ -5,5 +5,7 @@ end
 int main(void)
 begin
 int a;
-    a();
+int x;
+    a = f(x, true);
 end
+int l;

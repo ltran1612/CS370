@@ -23,6 +23,8 @@
 // include to access the nodes types
 #include "AST.h"
 
+#define FUNC_START_OFFSET 2
+
 // linecount is  by lex
 extern int linecount;
 // prototype to avoid having to include yy.lex.c
@@ -277,7 +279,7 @@ fun_declaration : type_specifier ID '('
                         // save the offset
                         GOFFSET = offset;
                         // reset offset leave two for the old stack pointer and base pointer.
-                        offset = 2;
+                        offset = FUNC_START_OFFSET;
                         // initialize MAXOFFSET
                         MAXOFFSET = offset;
                     }          
