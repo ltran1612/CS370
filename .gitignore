@@ -10,3 +10,4 @@
 y.tab.*
 *.gch
 *.o
+*.DS_Store
