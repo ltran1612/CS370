@@ -2,15 +2,22 @@
     File Name: lab7.y
     Description: This yacc routine will parse the input and checks if the program matches the syntax of the ALGOL_C. It will print out any possible syntax error with the line on which the error is.
     Author: Long Tran
-    Date: March 28th, 2020
+    Date: April 17th, 2020
     Input: strings
     Output: If the program is syntactically correct, it will print "The program is syntactically correct"
     Changes: 
-    + Add AST.h
-    + Remove yacc_debug_statement
-    + Add a global pointer to hold the root of the ast
-    + Add semantic actions in the production rules to produce node for abstract syntax tree
-    + Print out the tree after parsing. 
+    + Create a ARG node and s1 to the expression instead of just passing up expression
+    + Add check for declaration in var_list, and if it has not been decalred, add it in the symbol table.
+    + In func dec, save the offset to global offest, and set the offset to 2 (2 because of the 2 spaces needed for machine). Also, assign the param for
+    for funcdec after param. Finally, set the size of the function to be the largest offset that the function body would need.
+    + In param, the normal scalar var and the array reference will have size of 1 in the symbol table. However, array reference will have isFunc = 2
+    + In compound, set the greatest offset and delete all var declarations instide that compound statement (level).
+    + In var, make sure that the id is a variable, if a function -> barf. In Var[expression], make sure that id is an array, else barf
+    + In all of the epxressions rule (simple, addition, and term), check if the two operands have the same type, else barf
+    + In function call, check if the id has been defined, if not -> barf. Then, check if the id is for a function, if not -> barf. Then check if 
+    the arguments passed match the parameter list of the function, if not -> barf.
+    + Num will have type int
+    + True/False will have type boolean
 */
 
 %{
@@ -23,6 +30,7 @@
 // include to access the nodes types
 #include "AST.h"
 
+// the offset where function will start
 #define FUNC_START_OFFSET 2
 
 // linecount is  by lex
@@ -159,6 +167,7 @@ var_declaration : type_specifier var_list ';' /*var-declaration → type-specifi
                         // pass up the pointer
                         $$ = $2;
 
+                        // show the table inserted
                         Display();
                     } // end type_specifier var_list
                 ; 
@@ -828,8 +837,7 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
                $$->value = $1;
                 // set the semantic type of number
                $$->sem_type = INTTYPE;
-            } // end NUM
-            
+            } // end NUM            
         | var
             {
                 // pass up the pointer

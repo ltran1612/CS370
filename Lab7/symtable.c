@@ -14,6 +14,14 @@
     We add a routine to remove variables at our level and above.
 */
 
+/*
+  Symbol Table
+  Modifed by Long Tran
+  Date: April 17th, 2020
+
+  Changed Display and PrintSym to print more fields of SymbTab
+*/
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,18 +29,8 @@
 #include "symtable.h"
 #include "AST.h"
 
-int GTEMP = 0;
-
 // 
 struct SymbTab * first = NULL;
-
-char * CreateTemp()
-{    char hold[100];
-     char *s;
-     sprintf(hold,"_t%d",GTEMP++);
-     s=strdup(hold);
-     return (s);
-} // end CreateTemp
 
 /* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
 struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level, int size, int offset , ASTNode * fparms)
@@ -79,19 +77,25 @@ struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level,
 /* print out a single symbol table entry -- for debugging */
 void PrintSym(struct SymbTab *s)
 {
+  // print name, offset, and level
   fprintf(stderr, "\t%s\t\t%d\t\t%d\t\t",s->name,s->offset, s->level);
+
+  // print the data type
   printOperator(s->type);
-  fprintf(stderr, "\t\t%d\t\t%d", s->size, s->isFunc);
-  fprintf(stderr, "\n");
+
+  // print the size and isFunc
+  fprintf(stderr, "\t\t%d\t\t%d\n", s->size, s->isFunc);
 } // end PrintSym
 
 /*  General display to see what is our symbol table */
 void Display()
 {
-  int i;
+  // the types of field
+  fprintf(stderr, "\n\tLABEL\t\tOffset\t\tLEVEL\t\tTYPE\t\tSIZE\t\tISFUNC\n");
+
+    // print the table
   struct SymbTab *p;
   p=first;
-  fprintf(stderr, "\n\tLABEL\t\tOffset\t\tLEVEL\t\tTYPE\t\tSIZE\t\tISFUNC\n");
   while (p!=NULL)
   {
       PrintSym(p);

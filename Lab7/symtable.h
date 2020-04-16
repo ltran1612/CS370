@@ -13,13 +13,20 @@
 
     We add a routine to remove variables at our level and above.
 */
-// change to normal convention
+
+/*
+    Modified by Long Tran
+    April 17, 2020
+    
+    Delete undefined functions (FetchAddress), make comments, and fix to fit the other programs.
+
+*/
+// change to normal convention of preprocesor wrapper
 #ifndef  SYMTABLE_H
 #define  SYMTABLE_H
 
+// include to have access to ASTNode for fparams
 #include "AST.h"
-
-// int mem = 0;
 
 // the struct definition of SymbTab
 // Change the name to better suit my style
@@ -33,14 +40,24 @@ struct SymbTab
      int isFunc;  /* the element is a function */
      ASTNode * fparms; /* pointer to parameters of the function in the AST */
 
+    // pointer to the next entry in the table
      struct SymbTab *next;
 }; // end SymbTab struct definition
 
-
+// functions
+/* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
 struct SymbTab * Insert(char * name, enum OPERATORS type, int isFunc, int level, int mysize, int offset, ASTNode * fparms );
-struct SymbTab * Search(char * name, int level, int recur);
-void Display();
-int Delete();
-int FetchAddr (char *lab);
 
+/*  Search for a symbol name at level or below.  We have to do multiple passes into the symbol table because we have to find
+   the name closest to us 
+    If recur is non-zero, then we look through all of the levels, otherwise, only our level 
+    We return a pointer to a SymbolTab structure so that we can use other functions/methods to get the attributes */
+struct SymbTab * Search(char * name, int level, int recur);
+
+/*  General display to see what is our symbol table */
+void Display();
+
+/* Remove all enteries that have the indicated level
+   We need to take care about updating first pointer into the linked list when we are deleting edge elements */
+int Delete();
 #endif // of SYMTABLE_H

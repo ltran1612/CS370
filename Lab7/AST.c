@@ -2,13 +2,20 @@
     File Name: AST.c
     Description: Contain the ASTprint function that will help print the AST tree.
     Author: Long Tran
-    Date: March 28th, 2020
+    Date: April 17th, 2020
+
+    Changes:
+    + Comments
+    + Add check parameters to check if the arguments of a function matches the parameters of a function.
+    + Add a argument case in printASTNode to print ARGUMENT then the expression.
 */
 #include <stdio.h>
 #include <stdlib.h>
 // comment out malloc.h because on mac, it warns that malloc is not found, malloc is included in stdlib
 //#include <malloc.h>
-#include "AST.h"
+#include "AST.h" // have access to ASTNode
+
+// the spacing level
 #define level1 1
 #define level2 2
 #define level3 3
@@ -497,15 +504,15 @@ void printOperator(enum OPERATORS op) {
     } // end switch
 } // end printOperator
 
-
+// check if the parameters are the same as the argumentes
 // 1 if Okay, 0 if not okay
 int check_parameters(struct ASTNode * fparam, struct ASTNode * aparam) {
     // base cases
-    if (fparam == NULL && aparam == NULL) return 1;
-    if (fparam == NULL || aparam == NULL) return 0;
+    if (fparam == NULL && aparam == NULL) return 1; // no arg and no parm -> true
+    if (fparam == NULL || aparam == NULL) return 0; // param length and arg length does not match -> false
 
     // fparam and aparam is not null, check if they have the same type
-    if (fparam->sem_type != aparam->sem_type) return 0;
+    if (fparam->sem_type != aparam->sem_type) return 0; // not the same type -> false
 
     return check_parameters(fparam->next, aparam->next);
 } // end if
