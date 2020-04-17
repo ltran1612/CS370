@@ -1,5 +1,5 @@
  # Long Tran
- # this program prompts the user for an input and calculates the sum of squares up to and including that number
+ # sumuser.asm - this program prompts the user for an input and calculates the sum of squares up to and including that number
  # April 17, 2020
  # Input: a number
  # Output: the sum of squares up to and including that number
