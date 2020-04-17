@@ -167,8 +167,8 @@ var_declaration : type_specifier var_list ';' /*var-declaration → type-specifi
                         // pass up the pointer
                         $$ = $2;
 
-                        // show the table inserted
-                        Display();
+                        // // show the table inserted
+                        // Display();
                     } // end type_specifier var_list
                 ; 
 
