@@ -161,7 +161,11 @@ var_declaration : type_specifier var_list ';' /*var-declaration → type-specifi
                         ASTNode * p;
                         for (p = $2; p != NULL; p = p->s1) {
                             p->operator = $1;
+                            
+                            // assign the symbol entry of this variable to the symbol field
                             p->symbol = Search(p->name, level, 0);
+
+                            // the type of the symbol table entry is the type of the variable.
                             p->symbol->type = $1;
                         } // end for p
                         
