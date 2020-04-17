@@ -177,7 +177,9 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                 {
                     // if duplicate
                     if (Search($1, level, 0) != NULL) {
-                        yyerror("Duplicate Variable");
+                        char * s = $1;
+                        s = strcat(s, " has already been declared");
+                        yyerror(s);
                     } // end if
 
                     // not duplicate
@@ -198,7 +200,9 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                 {
                     // duplicate variable
                     if (Search($1, level, 0) != NULL) {
-                        yyerror("Duplicate Variable ");
+                        char * s = $1;
+                        s = strcat(s, " has already been declared");
+                        yyerror(s);
                     } // end if
 
                     // Vardec node for array variable
@@ -218,7 +222,9 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                 {
                     // duplicate variable
                     if (Search($1, level, 0) != NULL) {
-                        yyerror("Duplicate Variable ");
+                        char * s = $1;
+                        s = strcat(s, " has already been declared");
+                        yyerror(s);
                     } // end if
 
                     // Vardec node for normal variable
@@ -240,7 +246,9 @@ var_list    :   ID /*var-list → ID | ID [ NUM ] | ID , var-list | ID [ NUM ] ,
                 {
                     // duplicate variable
                     if (Search($1, level, 0) != NULL) {
-                        yyerror("Duplicate Variable ");
+                        char * s = $1;
+                        s = strcat(s, " has already been declared");
+                        yyerror(s);
                     } // end if
 
                     // Vardec node for array variable
