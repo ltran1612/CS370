@@ -14,6 +14,7 @@
 // comment out malloc.h because on mac, it warns that malloc is not found, malloc is included in stdlib
 //#include <malloc.h>
 #include "AST.h" // have access to ASTNode
+#include "symtable.h"
 
 // the spacing level
 #define level1 1
@@ -73,6 +74,7 @@ void ASTprint(ASTNode *p, int level) {
             if (p->value > 1)
                 fprintf(stderr, "[%d]", p->value);
             
+            fprintf(stderr, " has offset %d", p->symbol->offset);
             // print new line
             fprintf(stderr, "\n");
 
@@ -95,7 +97,9 @@ void ASTprint(ASTNode *p, int level) {
             fprintf(stderr, " FUNCTION ");
             
             // print function name
-            fprintf(stderr, "%s\n", p->name);
+            fprintf(stderr, "%s", p->name);
+
+            fprintf(stderr, " has max offset %d\n", p->symbol->size);
             
             // print parameters
 			// if s1 is null, meaning no parameter, print VOID

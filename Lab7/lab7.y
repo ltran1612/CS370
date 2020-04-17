@@ -161,7 +161,8 @@ var_declaration : type_specifier var_list ';' /*var-declaration → type-specifi
                         ASTNode * p;
                         for (p = $2; p != NULL; p = p->s1) {
                             p->operator = $1;
-                            Search(p->name, level, 0)->type = $1;
+                            p->symbol = Search(p->name, level, 0);
+                            p->symbol->type = $1;
                         } // end for p
                         
                         // pass up the pointer
@@ -314,7 +315,8 @@ fun_declaration : type_specifier ID '('
                         $$->s2 = $8;
 
                         // set the size of the function to be MAXOFFSET
-                        Search($2, 0, 0)->size = MAXOFFSET;
+                        $$->symbol = Search($2, 0, 0);
+                        $$->symbol->size = MAXOFFSET;
 
                         // on funcdec exit, reset offset to saved global offset
                         offset = GOFFSET;
