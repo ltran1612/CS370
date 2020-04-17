@@ -369,7 +369,7 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
                 $$->sem_type = $1;
 
                 // insert
-                Insert($$->name, $1, 0, level + 1, 1, offset, NULL);;
+                $$->symbol = Insert($$->name, $1, 0, level + 1, 1, offset, NULL);;
                 // increment offset
                 offset += 1;
             } // end type_specifier ID
@@ -393,7 +393,7 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
                 $$->sem_type = $1;
 
                 // insert
-                Insert($$->name, $1, 2, level + 1, 1, offset, NULL);
+                $$->symbol = Insert($$->name, $1, 2, level + 1, 1, offset, NULL);
                 // increment offset, 1 because it is a poitner
                 offset += 1;
             } // end type_specifier ID []
