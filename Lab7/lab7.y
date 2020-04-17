@@ -962,9 +962,7 @@ int main() {
     fprintf(stderr, "\nMain symbol table START\n");
     Display();
     fprintf(stderr, "Main symbol table END\n\n");
-    
+
     // print out the syntas tree
     ASTprint(gp, 0);
-
-
 } // end main
