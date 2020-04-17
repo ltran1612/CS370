@@ -46,7 +46,7 @@ Variable INT  y has offset 100
 Variable INT  Z[100] has offset 0
 INT FUNCTION f has max offset 14
   (
-  PARAMETER INT b
+  PARAMETER INT b has an offset 2
   )
   BLOCK STATEMENT
    Variable INT  y has offset 3
@@ -103,8 +103,8 @@ INT FUNCTION f has max offset 14
 Variable INT  z has offset 101
 INT FUNCTION main has max offset 4
   (
-  PARAMETER INT arg1
-  PARAMETER INT arg2[]
+  PARAMETER INT arg1 has an offset 2
+  PARAMETER INT arg2[] has an offset 3
   )
   BLOCK STATEMENT
    WRITE STATEMENT
