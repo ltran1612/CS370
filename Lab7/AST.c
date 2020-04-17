@@ -99,7 +99,7 @@ void ASTprint(ASTNode *p, int level) {
             // print function name
             fprintf(stderr, "%s", p->name);
 
-            fprintf(stderr, " has max offset %d\n", p->symbol->size);
+            fprintf(stderr, " has size %d\n", p->symbol->size);
             
             // print parameters
 			// if s1 is null, meaning no parameter, print VOID
