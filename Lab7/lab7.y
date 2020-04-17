@@ -644,7 +644,9 @@ var : ID  /*var → ID [ [ expression ] ] +*/
             // variable not defined
             struct SymbTab * instance = Search($1, level, 1);
             if (instance == NULL) {
-                yyerror("Variable not defined");
+                char * s = $1;
+                s = strcat(s, " has not been declared");
+                yyerror(s);
             } // end if
 
             // not a normal variable
@@ -669,7 +671,9 @@ var : ID  /*var → ID [ [ expression ] ] +*/
             // variable not defined
             struct SymbTab * instance = Search($1, level, 1);
             if (instance == NULL) {
-                yyerror("Variable not defined");
+                char * s = $1;
+                s = strcat(s, " has not been declared");
+                yyerror(s);
             } // end if
 
             // not an array
@@ -902,7 +906,9 @@ call    : ID '(' args ')' /*call → ID ( args )*/
             {
                 struct SymbTab * instance = Search($1, 0, 0);
                 if (instance == NULL) {
-                    yyerror("Function has not been defined");
+                    char * s = $1;
+                    s = strcat(s, " (function) has not been declared");
+                    yyerror(s);
                 } // end if
 
                 if (instance->isFunc != 1) {
