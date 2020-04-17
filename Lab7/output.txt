@@ -1,0 +1,143 @@
+
+	LABEL		Offset		LEVEL		TYPE		SIZE		ISFUNC
+	x		4		2		INT		10		2
+	y		3		1		INT		1		0
+	b		2		1		INT		1		0
+	f		0		0		INT		0		1
+	y		100		0		INT		1		0
+	Z		0		0		INT		100		2
+
+	LABEL		Offset		LEVEL		TYPE		SIZE		ISFUNC
+	x		4		2		INT		10		2
+	y		3		1		INT		1		0
+	b		2		1		INT		1		0
+	f		0		0		INT		0		1
+	y		100		0		INT		1		0
+	Z		0		0		INT		100		2
+
+	LABEL		Offset		LEVEL		TYPE		SIZE		ISFUNC
+	y		3		1		INT		1		0
+	b		2		1		INT		1		0
+	f		0		0		INT		0		1
+	y		100		0		INT		1		0
+	Z		0		0		INT		100		2
+
+	LABEL		Offset		LEVEL		TYPE		SIZE		ISFUNC
+	arg2		3		1		INT		1		2
+	arg1		2		1		INT		1		0
+	main		0		0		INT		0		1
+	z		101		0		INT		1		0
+	f		0		0		INT		14		1
+	y		100		0		INT		1		0
+	Z		0		0		INT		100		2
+The program is syntactically correct
+
+Main symbol table START
+
+	LABEL		Offset		LEVEL		TYPE		SIZE		ISFUNC
+	main		0		0		INT		4		1
+	z		101		0		INT		1		0
+	f		0		0		INT		14		1
+	y		100		0		INT		1		0
+	Z		0		0		INT		100		2
+Main symbol table END
+
+Variable INT  y has offset 100
+Variable INT  Z[100] has offset 0
+INT FUNCTION f has max offset 14
+  (
+  PARAMETER INT b
+  )
+  BLOCK STATEMENT
+   Variable INT  y has offset 3
+   BLOCK STATEMENT
+    Variable INT  x[10] has offset 4
+    Assignment STATEMENT
+     IDENTIFIER x
+     Array Reference [
+      EXPR  -
+       EXPR  +
+        NUMBER with value 2
+        NUMBER with value 3
+       NUMBER with value 5
+     ] end array
+     EXPR  +
+      IDENTIFIER b
+      CALL f
+        (
+        ARGUEMENT
+         EXPR  +
+          NUMBER with value 5
+          EXPR  *
+           IDENTIFIER x
+           Array Reference [
+            NUMBER with value 2
+           ] end array
+           IDENTIFIER b
+        )
+   BLOCK STATEMENT
+    Variable INT  x[10] has offset 4
+    Assignment STATEMENT
+     IDENTIFIER x
+     Array Reference [
+      EXPR  -
+       EXPR  +
+        NUMBER with value 2
+        NUMBER with value 3
+       NUMBER with value 5
+     ] end array
+     EXPR  +
+      IDENTIFIER b
+      CALL f
+        (
+        ARGUEMENT
+         EXPR  +
+          NUMBER with value 5
+          EXPR  *
+           IDENTIFIER x
+           Array Reference [
+            NUMBER with value 2
+           ] end array
+           IDENTIFIER b
+        )
+Variable INT  z has offset 101
+INT FUNCTION main has max offset 4
+  (
+  PARAMETER INT arg1
+  PARAMETER INT arg2[]
+  )
+  BLOCK STATEMENT
+   WRITE STATEMENT
+    CALL f
+      (
+      ARGUEMENT
+       EXPR  +
+        EXPR  -
+         EXPR  +
+          IDENTIFIER arg1
+          IDENTIFIER arg2
+          Array Reference [
+           EXPR  +
+            NUMBER with value 3
+            NUMBER with value 5
+          ] end array
+         IDENTIFIER z
+        IDENTIFIER y
+      )
+   WRITE STATEMENT
+    CALL f
+      (
+      ARGUEMENT
+       EXPR  +
+        EXPR  -
+         EXPR  +
+          IDENTIFIER arg1
+          IDENTIFIER arg2
+          Array Reference [
+           EXPR  +
+            NUMBER with value 3
+            NUMBER with value 5
+          ] end array
+         IDENTIFIER z
+        IDENTIFIER y
+      )
