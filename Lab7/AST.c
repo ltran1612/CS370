@@ -150,6 +150,8 @@ void ASTprint(ASTNode *p, int level) {
             if (p->value > 1) 
                 fprintf(stderr, "[]");
 
+            fprintf(stderr, " has offset %d", p->symbol->offset);
+
             // get to a new line
             fprintf(stderr, "\n");
             
