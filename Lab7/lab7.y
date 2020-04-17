@@ -957,8 +957,12 @@ arg_list    : expression /*arg-list → expression { , expression }*/
 int main() {
     if (!yyparse())
         fprintf(stderr, "The program is syntactically correct\n");
-
-    fprintf(stderr, "%d", level); 
+    
+    // print out the symbol table
+    fprintf(stderr, "\nMain symbol table START\n");
+    Display();
+    fprintf(stderr, "Main symbol table END\n\n");
+    
     // print out the syntas tree
     ASTprint(gp, 0);
 
