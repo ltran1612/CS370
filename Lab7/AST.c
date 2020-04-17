@@ -520,5 +520,8 @@ int check_parameters(struct ASTNode * fparam, struct ASTNode * aparam) {
     // fparam and aparam is not null, check if they have the same type
     if (fparam->sem_type != aparam->sem_type) return 0; // not the same type -> false
 
+    // check if the argument is an array if the parameter expects an array reference
+    if (fparam->value == 2 && (aparam->s1->type != IDENT || aparam->s1->symbol->isFunc != 2)) return 0;
+
     return check_parameters(fparam->next, aparam->next);
 } // end if
