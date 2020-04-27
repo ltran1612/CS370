@@ -16,6 +16,7 @@ void emit_expr(ASTNode * p, FILE * file);
 void emit_write(ASTNode * p, FILE * file);
 void emit_identifier(ASTNode * p, FILE * file);
 void emit_read(ASTNode * p, FILE * file);
+void emit_assignment(ASTNode * p, FILE * file);
 
 // Method to genearte asm code for strings used in the code
 // Pre: A pointer to the root of the AST Node tree after parsing
@@ -144,14 +145,7 @@ void EMITAST(ASTNode *p, FILE * file) {
         // assign statement
         case ASSIGNSTMT:
         {
-            // print the Assignment STATEMENT
-            fprintf(stderr, "Assignment STATEMENT\n");
-            
-            // print the left side
-            EMITAST(p->s1, file);
-            
-            // print the right side
-            EMITAST(p->s2, file);
+            emit_assignment(p, file);
             
             break; // of ASSIGNSTMT
         } // end assignment statement
@@ -159,21 +153,13 @@ void EMITAST(ASTNode *p, FILE * file) {
         // return statement
         case RETURNSTMT:
         {
-			// print Return
-			fprintf(stderr, "RETURN STATEMENT\n");
-
-			// EMITAST
-			EMITAST(p->s1, file);
-
+			emit_function_return(p, file);
             break; // of RETURNSTMT
         } // end return statement
         
         // read statement
         case READSTMT:
-        {
-            // print READ STATEMENT
-            fprintf(stderr, "READ STATEMENT\n");
-            
+        {    
             emit_read(p, file);
             
             break; // of READSTMT
@@ -191,39 +177,9 @@ void EMITAST(ASTNode *p, FILE * file) {
 			
 		case EXPRSTMT:
         {   
-            emit_expr(p, file);
+            emit_expr(p->s1, file);
 			break; // of EXPRSTMT
         } // end expression statement
-        
-        // function call
-        case FUNCALL:
-        {
-            // print FUNCTION CALL
-            fprintf(stderr, "CALL %s\n", p->name);
-            
-            // print the arguments
-            // if null, then there are no arguments, print emy ()
-            // else print the arguments inside the parantheses
-            if (p->s1 == NULL) {
-                (NULL);
-                fprintf(stderr, "()\n");
-            } // end if
-            else {
-                // print the spacing for left paranthese
-                (NULL);
-                // print left paranthese
-                fprintf(stderr, "(\n");
-
-                // print the arguments
-                EMITAST(p->s1, file);
-
-                // print the spacing for the right paranthese
-                (NULL);
-                // print right paranthese
-                fprintf(stderr, ")\n");
-            } // end else
-            break; // of FUNCALL
-        } // end funcall
 
         case ARG:
         {
@@ -291,8 +247,9 @@ void emit_function_head(ASTNode * p, FILE * file)
 
 // method to handle explicit and implicit function returns;
 // pre pointer to RETURN or NULL
-// POST RETURN CODE in MIPS printed in fp
+// POST RETURN CODE in MIPS printed in fp the return value is in $a0
 void emit_function_return(ASTNode * p, FILE * file){
+    if (file == NULL) return;
     if (p != NULL)
     {
         // we need to evaluate the expression
@@ -318,6 +275,7 @@ void emit_function_return(ASTNode * p, FILE * file){
         emit(file, "", "", "");
         emit(file, "", "lw $ra, 4($sp)", "# Restore RA");
         emit(file, "", "lw $sp, ($sp)", "# Restore SP");
+        emit(file, "", "j $ra", "");
         emit(file, "", "", "");
     }
 } // end emit_function_return
@@ -342,10 +300,10 @@ void emit_write(ASTNode * p, FILE * file) {
     }
     emit(file, "", "syscall", "");
 
-    // // print new line
-    // emit(file, "", "li $v0, 4", "#print a newline");
-    // emit(file, "", "la $a0, _NL", "");
-    // emit(file, "", "syscall", "");
+    // print new line
+    emit(file, "", "li $v0, 4", "#print a newline");
+    emit(file, "", "la $a0, _NL", "");
+    emit(file, "", "syscall", "");
 }
 
 /*
@@ -381,8 +339,8 @@ void emit_expr(ASTNode * p, FILE * file) {
             return;
             break;
         case FUNCALL:
-            printf("Not implementing in emit_expn");
-            exit(1);
+            sprintf(s, "jal %s", p->name);
+            emit(file, "", s, "");
             return;
             break;
         default:
@@ -499,4 +457,27 @@ void emit_read(ASTNode * p, FILE * file) {
 
     // we know $v0 has the value read in
     emit(file, "", "", "");
+}
+
+void emit_assignment(ASTNode * p, FILE * file) {
+    if (p == NULL) return;
+    if (file == NULL) return;
+    if (p->symbol == NULL) return;
+
+    char s[100];
+    // getting the address of the left hand side in $a0
+    emit_identifier(p->s1, file);
+    sprintf(s, "sw $a0, %d($sp)", p->symbol->offset * WSIZE);
+    emit(file, "", s, "");
+
+    // calculate right hand side
+    emit_expr(p->s2, file);
+    emit(file, "", "move $a1, $a0", "");
+
+    // move the address of LHS back to $a0
+    sprintf(s, "lw $a0, %d($sp)", p->symbol->offset * WSIZE);
+    emit(file, "", s, "");
+
+    // assigning
+    emit(file, "", "sw $a1, ($a0)", "");
 }
