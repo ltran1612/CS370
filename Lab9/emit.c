@@ -17,6 +17,7 @@ void emit_write(ASTNode * p, FILE * file);
 void emit_identifier(ASTNode * p, FILE * file);
 void emit_read(ASTNode * p, FILE * file);
 void emit_assignment(ASTNode * p, FILE * file);
+void emit_arguments(ASTNode * p,FILE * file);
 
 // Method to genearte asm code for strings used in the code
 // Pre: A pointer to the root of the AST Node tree after parsing
@@ -253,7 +254,7 @@ void emit_function_return(ASTNode * p, FILE * file){
     if (p != NULL)
     {
         // we need to evaluate the expression
-        emit_expr(p, file); // this leaves $a0 the result
+        emit_expr(p->s1, file); // this leaves $a0 the result
     }
 
     // if it is null we do nothing with $a0
@@ -275,7 +276,7 @@ void emit_function_return(ASTNode * p, FILE * file){
         emit(file, "", "", "");
         emit(file, "", "lw $ra, 4($sp)", "# Restore RA");
         emit(file, "", "lw $sp, ($sp)", "# Restore SP");
-        emit(file, "", "j $ra", "");
+        emit(file, "", "jr $ra", "");
         emit(file, "", "", "");
     }
 } // end emit_function_return
@@ -305,6 +306,7 @@ void emit_write(ASTNode * p, FILE * file) {
     emit(file, "", "la $a0, _NL", "");
     emit(file, "", "syscall", "");
 }
+
 
 /*
     emit_expr
@@ -339,6 +341,14 @@ void emit_expr(ASTNode * p, FILE * file) {
             return;
             break;
         case FUNCALL:
+            sprintf(s, "subu $sp, $sp, %d", p->symbol->size * WSIZE);
+            emit(file, "", s, "");
+
+            emit_arguments(p->s1, file);
+
+            sprintf(s, "add $sp, $sp, %d", p->symbol->size * WSIZE);
+            emit(file, "", s, "");
+
             sprintf(s, "jal %s", p->name);
             emit(file, "", s, "");
             return;
@@ -459,10 +469,12 @@ void emit_read(ASTNode * p, FILE * file) {
     emit(file, "", "", "");
 }
 
+//pre: a pointer to ASSIGNSTMT node
 void emit_assignment(ASTNode * p, FILE * file) {
     if (p == NULL) return;
     if (file == NULL) return;
     if (p->symbol == NULL) return;
+    if (p->type != ASSIGNSTMT) return;;
 
     char s[100];
     // getting the address of the left hand side in $a0
@@ -480,4 +492,21 @@ void emit_assignment(ASTNode * p, FILE * file) {
 
     // assigning
     emit(file, "", "sw $a1, ($a0)", "");
+}
+
+// pre: a pointer to ARGUE node, expect $sp to contain the value of the upcoming stack
+// post: MIPS code to save the argument
+void emit_arguments(ASTNode * p, FILE * file) {
+    if (file == NULL) return;
+    if (p == NULL) return;
+    if (p->symbol == NULL) return;
+
+    // is a arugement node and file is not null
+    // save the argument
+    emit_expr(p->s1, file);
+    char s[100];
+    sprintf(s, "sw $a0, %d($sp)", p->symbol->offset * WSIZE);
+    emit(file, "", s, "");
+
+    emit_arguments(p->next, file);
 }
