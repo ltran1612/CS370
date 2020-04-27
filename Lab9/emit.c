@@ -191,62 +191,9 @@ void EMITAST(ASTNode *p, FILE * file) {
 			
 		case EXPRSTMT:
         {   
-            // print EXPRSTMT
-            fprintf(stderr, "EXPRSTMT\n");
-            
-            // print the expression
-            EMITAST(p->s1, file);
-            
+            emit_expr(p, file);
 			break; // of EXPRSTMT
         } // end expression statement
-			
-		case EXPR:
-        {
-			// print EXPR
-            fprintf(stderr, "EXPR  ");
-            
-			// print the operator
-            printOperator(p->operator);
-            
-            // new line
-            fprintf(stderr, "\n");
-            
-            // print the left operand
-            EMITAST(p->s1, file);
-            
-            // print the right operand
-            EMITAST(p->s2, file);
-            
-			break; // of EXPR
-        } // end expression
-        
-        case IDENT:
-        {
-            // a single variable, not an array
-            // print IDENTIFIER
-            fprintf(stderr, "IDENTIFIER ");
-            
-            // print the its name
-            fprintf(stderr, "%s\n", p->name);
-            
-			// if the value is greater than 1, it is an arary, print it as an array
-            if (p->value > 1)
-            {
-                // an array
-                // print Array Reference [ newline
-                fprintf(stderr, "Array Reference [\n");
-                
-                // print the expression in the array
-                EMITAST(p->s1, file);
-                
-                // print ] and end array
-                (NULL);
-                fprintf(stderr, "] end array\n");
-                
-            } // end if
-            
-            break; // of IDENT
-        } // end identifier
         
         // function call
         case FUNCALL:
@@ -408,8 +355,10 @@ void emit_write(ASTNode * p, FILE * file) {
 */
 void emit_expr(ASTNode * p, FILE * file) {
     if (p == NULL) return;
+    if (file == NULL) return;
 
     char s[100];
+    // base cases
     switch(p->type) {
         case EXPR:
             break;
@@ -429,14 +378,52 @@ void emit_expr(ASTNode * p, FILE * file) {
         case IDENT:
             emit_identifier(p, file);
             emit(file, "", "lw $a0, ($a0)", "#fetch value from the location stored at $a0");
+            return;
             break;
         case FUNCALL:
             printf("Not implementing in emit_expn");
             exit(1);
+            return;
+            break;
+        default:
+            return;
+            break;
+    } // end switch
+
+    // evaluate the left hand side
+    emit_expr(p->s1, file);
+    // store s1 in p->symbol->offset
+    sprintf(s, "sw $a0, %d($sp)", p->symbol->offset * WSIZE);
+    emit(file, "", s, "");
+
+    // evaluate s2
+    emit_expr(p->s2, file);
+    // move a0 to a1
+    emit(file, "", "move $a1, $a0", "");
+
+    // load a0 with p->symbol->offset
+    sprintf(s, "lw $a0, %d($sp)", p->symbol->offset * WSIZE);
+    emit(file, "", s, "");
+
+    // perform calculation
+    switch(p->operator) {
+        case PLUS:
+            emit(file, "", "add $a0, $a0, $a1", "");
+            break;
+        case MINUS:
+            emit(file, "", "sub $a0, $a0, $a1", "");
+            break;
+        case TIMES:
+            emit(file, "", "mult $a0, $a1", "");
+            emit(file, "", "mflo $a0", "");
+            break;
+        case DIV:
+            emit(file, "", "div $a0", "");
+            emit(file, "", "mflo $a0", "");
             break;
         default:
             break;
-    } // end switch
+    }
 }
 
 // emit_identifier
@@ -461,7 +448,7 @@ void emit_identifier(ASTNode * p, FILE * file) {
             // times the word size
             sprintf(s, "sll $a0, $a0, %d", WSIZE / 2);
             emit(file, "", s, "# times the word size");
-            
+
             sprintf(s, "la $a1, %s", p->name);
             emit(file, "", s, "");
             emit(file, "", "add $a0, $a0, $a1", "");
