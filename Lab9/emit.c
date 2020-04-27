@@ -45,21 +45,23 @@ void EMITSTRINGS(ASTNode * p, FILE * file)
 // Pre: A pointer to the root of the AST Node tree after parsing
 // Post: Print out the asm code that define global variables in the .data section
 void EMITGLOBAL(ASTNode * p, FILE * file) {
-    if (p == NULL) {
-        fprintf(stderr, "EMITGLOBAL root tree is null");
+    if (file == NULL) {
+        fprintf(stderr, "EMITGLOBAL file is null\n");
         return;
     }
-    if (file == NULL) return;
+    if (p == NULL) return;
 
     // p is not null and file is not null
     char s[100];
-    if (p->symbol->level == 0) {
+    if (p->type == VARDEC && p->symbol->level == 0) {
         sprintf(s, ".space %d", p->value * WSIZE);
         emit(file, p->name, s, "# define a global variable");
-    }
+    } // end if
 
-    // go tr
-
+    // go to other node
+    EMITGLOBAL(p->next, file);
+    EMITGLOBAL(p->s1, file);
+    EMITGLOBAL(p->s2, file);
 }
 
 char * genlabel()
@@ -79,12 +81,6 @@ void EMITAST(ASTNode *p, FILE * file) {
        
     // for each type of node type, print its content
     switch (p->type) {
-        // var-declaration
-        case VARDEC: // variable declaration
-        {   
-            break; // of VARDEC
-        }
-            
         // fun-declaration
         case FUNDEC:
         {
@@ -447,12 +443,27 @@ void emit_expr(ASTNode * p, FILE * file) {
 // PRE: p is a PTR to a identifier node
 // POST: MIPS code such that $ao is the ADDRESS of where IDENT is in memory
 void emit_identifier(ASTNode * p, FILE * file) {
+    if (file == NULL) return;
     if (p == NULL) return;
     if (p->type != IDENT) return;
 
+    char s[100];
     // check if the identifier is global
     if (p->symbol->level == 0) {
         fprintf(stderr, "global level\n");
+
+        // check if it is scalar or array
+        if (p->symbol->isFunc == 2) {
+            // global array
+            fprintf(stderr, "array\n");
+            
+            return;
+        } // end if
+        
+        // global scalar
+        fprintf(stderr, "global scalar\n");
+        sprintf(s, "la $a0, %s", p->name);
+        emit(file, "", s, "#load gobal variable from data segment");
         return;
     }
     
@@ -460,10 +471,12 @@ void emit_identifier(ASTNode * p, FILE * file) {
     // check if it is scalar or array
     if (p->symbol->isFunc == 2) {
         fprintf(stderr, "array\n");
+        sprintf(s, "add $a0, $sp, %d", p->symbol->offset * WSIZE);
+        emit(file, "", s, "");
+        return;
     } // end if
 
     // local scalar
-    char s[100];
     sprintf(s, "add $a0, $sp, %d", p->symbol->offset * WSIZE);
     emit(file, "", s, "# identifier is a LOCAL SCALAR");
 }
@@ -472,11 +485,9 @@ void emit_identifier(ASTNode * p, FILE * file) {
 // pre: a pointer to READSTMT
 // post: MIPS code for read
 void emit_read(ASTNode * p, FILE * file) {
+    emit_identifier(p->s1, file); //$a0 is the address we want to store in
     emit(file, "", "li $v0, 5", "# read a number from input");
     emit(file, "", "syscall", "# reading a number from input");
-
-    emit_identifier(p->s1, file); //$a0 is the address we want to store in
-
     emit(file, "", "sw $v0, ($a0)", "#store the read value into a mem location");
 
     // we know $v0 has the value read in

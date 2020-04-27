@@ -1054,10 +1054,17 @@ int main(int argc, char * argv[]) {
         // write the content of the compilation into the file
         yyparse();
         fprintf(outfile, ".data\n\n");
+
+        // all strings
         EMITSTRINGS(gp, outfile);
         fprintf(outfile, "_NL:\t.asciiz\t\"\\n\"\n");
-        fprintf(outfile, ".align 2\n\n");
-        fprintf(outfile, ".text\n\n");
+        fprintf(outfile, ".align 2 # start all of global variable aligned\n\n");
+
+        // all global variable
+        EMITGLOBAL(gp, outfile);
+
+        // instruction section
+        fprintf(outfile, "\n.text\n\n");
         EMITAST(gp, outfile);
         ASTprint(gp, 0);
     } // end if
