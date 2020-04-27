@@ -334,7 +334,7 @@ void emit_function_head(ASTNode * p, FILE * file)
     CURR_FUNCTION = p->name;
 
     // build the start pointer movement
-    sprintf(s, "subu $a0, $sp, %d", (p->symbol->size - 1) * WSIZE);
+    sprintf(s, "subu $a0, $sp, %d", (p->symbol->size) * WSIZE);
     emit(file, "", s, "# adjust the stack for function set up");
     emit(file, "", "sw $sp, ($a0)", "");
     emit(file, "", "sw $ra, 4($a0)", "");
@@ -448,6 +448,7 @@ void emit_identifier(ASTNode * p, FILE * file) {
     if (p->type != IDENT) return;
 
     char s[100];
+
     // check if the identifier is global
     if (p->symbol->level == 0) {
         fprintf(stderr, "global level\n");
@@ -455,8 +456,16 @@ void emit_identifier(ASTNode * p, FILE * file) {
         // check if it is scalar or array
         if (p->symbol->isFunc == 2) {
             // global array
-            fprintf(stderr, "array\n");
+            // get the index
+            emit_expr(p->s1, file);
+            // times the word size
+            sprintf(s, "sll $a0, $a0, %d", WSIZE / 2);
+            emit(file, "", s, "# times the word size");
             
+            sprintf(s, "la $a1, %s", p->name);
+            emit(file, "", s, "");
+            emit(file, "", "add $a0, $a0, $a1", "");
+            sprintf(s, "");
             return;
         } // end if
         
@@ -465,14 +474,25 @@ void emit_identifier(ASTNode * p, FILE * file) {
         sprintf(s, "la $a0, %s", p->name);
         emit(file, "", s, "#load gobal variable from data segment");
         return;
-    }
+    } // end if
     
     // the identifier is local
     // check if it is scalar or array
     if (p->symbol->isFunc == 2) {
-        fprintf(stderr, "array\n");
-        sprintf(s, "add $a0, $sp, %d", p->symbol->offset * WSIZE);
-        emit(file, "", s, "");
+        // local array
+        // get the address
+        // get the array index
+        emit_expr(p->s1, file);
+        // times the word size
+        sprintf(s, "sll $a0, $a0, %d", WSIZE / 2);
+        emit(file, "", s, "# times the word size");
+
+        // add the offset of the array
+        sprintf(s, "add $a0, $a0, %d", p->symbol->offset * WSIZE);
+        emit(file, "", s, "#");
+
+        // add in the stack pointer
+        emit(file, "", "add $a0, $sp, $a0", "#identifier is a LOCAL ARRAY");
         return;
     } // end if
 
