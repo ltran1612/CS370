@@ -17,7 +17,10 @@ void emit_write(ASTNode * p, FILE * file);
 void emit_identifier(ASTNode * p, FILE * file);
 void emit_read(ASTNode * p, FILE * file);
 void emit_assignment(ASTNode * p, FILE * file);
-void emit_arguments(ASTNode * p,FILE * file);
+void emit_arguments(ASTNode * fparam, ASTNode * p,FILE * file);
+void emit_iter(ASTNode * p, FILE * file);
+void emit_compound(ASTNode * p, FILE * file);
+ emit_if(p, file);
 
 // Method to genearte asm code for strings used in the code
 // Pre: A pointer to the root of the AST Node tree after parsing
@@ -92,21 +95,10 @@ void EMITAST(ASTNode *p, FILE * file) {
             break; // of FUNDEC
         }
         
-        // param
-        case PARAM:
-        {    
-            
-            break; // of PARAM
-        }
-        
         // compound statement
         case COMPSTMT:
         {
-            // print local declaration
-            EMITAST(p->s1, file);
-            
-            // print statement-list
-            EMITAST(p->s2, file);
+            emit_compound(p, file);
             
             break; // of COMPSTMT
         } // end compound statement
@@ -114,11 +106,7 @@ void EMITAST(ASTNode *p, FILE * file) {
         // iteration statement
         case ITERSTMT:
         {
-            // print expression
-            EMITAST(p->s1, file);
-            
-            // print statement
-            EMITAST(p->s2, file);
+            emit_iter(p, file);
             
             break; // of ITRSTMT
         } // end iteration statement
@@ -127,11 +115,7 @@ void EMITAST(ASTNode *p, FILE * file) {
         // the expression of if statement
         case IFSTMT: // if /
         {   
-            // print the expression
-            EMITAST(p->s1, file);
-            
-            // print IFSTMT1
-            EMITAST(p->s2, file);
+            emit_if(p, file);
             
             break;  // of IFSTMT
         } // end if 
@@ -344,7 +328,7 @@ void emit_expr(ASTNode * p, FILE * file) {
             sprintf(s, "subu $sp, $sp, %d", p->symbol->size * WSIZE);
             emit(file, "", s, "");
 
-            emit_arguments(p->s1, file);
+            emit_arguments(p->symbol->fparms, p->s1, file);
 
             sprintf(s, "add $sp, $sp, %d", p->symbol->size * WSIZE);
             emit(file, "", s, "");
@@ -388,6 +372,40 @@ void emit_expr(ASTNode * p, FILE * file) {
         case DIV:
             emit(file, "", "div $a0", "");
             emit(file, "", "mflo $a0", "");
+            break;
+        case ANDBW:
+             
+            break;
+        case ORBW:
+            break;
+        case LESS:
+            emit(file, "", "slt $a0, $a0, $a1", "");
+            break;
+        case LESSE:
+            emit(file, "", "slt $t0, $a0, $a1", "");
+            emit(file, "", "sub $t1, $a0, $a1", "");
+            emit(file, "", "sltiu $t1, $t1, 1", "");
+            emit(file, "", "or $a0, $t0, $t1", "");
+            break;
+        case GREAT:
+            emit(file, "", "slt $a0, $a1, $a0", "");
+            break;
+        case GREATE:
+            emit(file, "", "slt $t0, $a1, $a0", "");
+            emit(file, "", "sub $t1, $a0, $a1", "");
+            emit(file, "", "sltiu $t1, $t1, 1", "");
+            emit(file, "", "or $a0, $t0, $t1", "");
+            break;
+        case EQUAL:
+            emit(file, "", "sub $a0, $a0, $a1", "");
+            emit(file, "", "sltiu $a0, $a0, 1", "");
+            break;
+        case NEQUAL:
+            emit(file, "", "sub $a0, $a0, $a1", "");
+            emit(file, "", "li $t1, 0", "");
+            emit(file, "", "sltu $a0, $t2, $a0", "");
+            break;
+        case NOTOP:
             break;
         default:
             break;
@@ -496,7 +514,8 @@ void emit_assignment(ASTNode * p, FILE * file) {
 
 // pre: a pointer to ARGUE node, expect $sp to contain the value of the upcoming stack
 // post: MIPS code to save the argument
-void emit_arguments(ASTNode * p, FILE * file) {
+void emit_arguments(ASTNode * fparam, ASTNode * p, FILE * file) {
+    if (fparam == NULL) return;
     if (file == NULL) return;
     if (p == NULL) return;
     if (p->symbol == NULL) return;
@@ -505,8 +524,42 @@ void emit_arguments(ASTNode * p, FILE * file) {
     // save the argument
     emit_expr(p->s1, file);
     char s[100];
-    sprintf(s, "sw $a0, %d($sp)", p->symbol->offset * WSIZE);
+    fprintf(stderr, "Offset %d", p->symbol->offset);
+    sprintf(s, "sw $a0, %d($sp)", fparam->symbol->offset * WSIZE);
+    emit(file, "", s, "# Store the parameter to stack");
+
+    emit_arguments(fparam->next, p->next, file);
+}
+
+ void emit_iter(ASTNode * p, FILE * file) {
+    if (p == NULL) return;
+    if (file == NULL) return;
+    if (p->type != ITERSTMT) return;
+
+    char s[100];
+    char * start = genlabel();
+    char * end = genlabel();
+    emit(file, start, "", "#WHILE TOP TARGET");
+    // checking the condition
+
+    emit_expr(p->s1, file);
+
+    sprintf(s, "beq $a0, 0, %s", end);
     emit(file, "", s, "");
 
-    emit_arguments(p->next, file);
-}
+    //
+    emit_compound(p->s2, file);
+
+    // jump back
+    sprintf(s, "j %s", start);
+    emit(file, "", s, "");
+    emit(file, end, "", "#");
+ }
+
+ void emit_compound(ASTNode * p, FILE * file) {
+    if (p == NULL) return;
+    if (file == NULL) return;
+    if (p->type != COMPSTMT) return;
+
+    EMITAST(p->s2, file);
+ }
