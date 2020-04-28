@@ -366,9 +366,10 @@ void emit_expr(ASTNode * p, FILE * file) {
             emit(file, "", "mflo $a0", "");
             break;
         case ANDBW:
-             
+            emit(file, "", "and $a0, $a0, $a1", "");
             break;
         case ORBW:
+            emit(file, "", "or $a0, $a0, $a1", "");
             break;
         case LESS:
             emit(file, "", "slt $a0, $a0, $a1", "");
@@ -567,12 +568,20 @@ void emit_arguments(ASTNode * fparam, ASTNode * p, FILE * file) {
 
     // checking the condition
     emit_expr(p->s1, file);
+    
     sprintf(s, "beq $a0, 0, %s", end);
     emit(file, "", s, "");
-
     EMITAST(p->s2->s1, file);
-    emit(file, end, "", "# exit");
-    
-    if (p->s1->s2 != NULL)
-        emit_compound(p->s2->s2, file);
+
+    if (p->s1->s2 != NULL) {
+        char * end2 = genlabel();
+        sprintf(s, "j %s", end2);
+        emit(file, "", s, "");
+        emit(file, end, "", "# exit");
+        EMITAST(p->s2->s2, file);
+        emit(file, end2, "", "");
+    }
+    else {
+        emit(file, end, "", "# exit");
+    }
  }
