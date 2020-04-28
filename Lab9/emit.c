@@ -20,7 +20,7 @@ void emit_assignment(ASTNode * p, FILE * file);
 void emit_arguments(ASTNode * fparam, ASTNode * p,FILE * file);
 void emit_iter(ASTNode * p, FILE * file);
 void emit_compound(ASTNode * p, FILE * file);
- emit_if(p, file);
+void emit_selection(ASTNode * p, FILE * file);
 
 // Method to genearte asm code for strings used in the code
 // Pre: A pointer to the root of the AST Node tree after parsing
@@ -115,17 +115,12 @@ void EMITAST(ASTNode *p, FILE * file) {
         // the expression of if statement
         case IFSTMT: // if /
         {   
-            emit_if(p, file);
+            emit_selection(p, file);
             
             break;  // of IFSTMT
         } // end if 
         
         // then and/or else statement
-        case IFSTMT1: // then or then and else
-        {
-            
-            break; // of IFSTMT1
-        } // end then or then and else
             
         // assign statement
         case ASSIGNSTMT:
@@ -325,13 +320,10 @@ void emit_expr(ASTNode * p, FILE * file) {
             return;
             break;
         case FUNCALL:
-            sprintf(s, "subu $sp, $sp, %d", p->symbol->size * WSIZE);
+            sprintf(s, "subu $t5, $sp, %d", p->symbol->size * WSIZE);
             emit(file, "", s, "");
 
             emit_arguments(p->symbol->fparms, p->s1, file);
-
-            sprintf(s, "add $sp, $sp, %d", p->symbol->size * WSIZE);
-            emit(file, "", s, "");
 
             sprintf(s, "jal %s", p->name);
             emit(file, "", s, "");
@@ -470,6 +462,7 @@ void emit_identifier(ASTNode * p, FILE * file) {
     } // end if
 
     // local scalar
+    fprintf(stderr, "%s: %d", p->name, p->symbol->offset);
     sprintf(s, "add $a0, $sp, %d", p->symbol->offset * WSIZE);
     emit(file, "", s, "# identifier is a LOCAL SCALAR");
 }
@@ -525,7 +518,7 @@ void emit_arguments(ASTNode * fparam, ASTNode * p, FILE * file) {
     emit_expr(p->s1, file);
     char s[100];
     fprintf(stderr, "Offset %d", p->symbol->offset);
-    sprintf(s, "sw $a0, %d($sp)", fparam->symbol->offset * WSIZE);
+    sprintf(s, "sw $a0, %d($t5)", fparam->symbol->offset * WSIZE);
     emit(file, "", s, "# Store the parameter to stack");
 
     emit_arguments(fparam->next, p->next, file);
@@ -562,4 +555,24 @@ void emit_arguments(ASTNode * fparam, ASTNode * p, FILE * file) {
     if (p->type != COMPSTMT) return;
 
     EMITAST(p->s2, file);
+ }
+
+ void emit_selection(ASTNode * p, FILE * file) {
+    if (p == NULL) return;
+    if (file == NULL) return;
+    if (p->type != IFSTMT) return;
+
+    char s[100];
+    char * end = genlabel();
+
+    // checking the condition
+    emit_expr(p->s1, file);
+    sprintf(s, "beq $a0, 0, %s", end);
+    emit(file, "", s, "");
+
+    EMITAST(p->s2->s1, file);
+    emit(file, end, "", "# exit");
+    
+    if (p->s1->s2 != NULL)
+        emit_compound(p->s2->s2, file);
  }
