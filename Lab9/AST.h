@@ -151,4 +151,6 @@ void printOperator(enum OPERATORS op);
 // check if the parameters are the same as the argumentes
 // 1 if Okay, 0 if not okay
 int check_parameters(struct ASTNode * fparam, struct ASTNode * aparam);
+
+int checkPointer(ASTNode * p);
 #endif  // of AST_H

@@ -402,15 +402,15 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
                 $$ = ASTCreateNode(PARAM);
                 // name of the param
                 $$->name = $2;
-                // an array, size is 2
-                $$->value = 2;
+                // an array, size is 1
+                $$->value = 1;
                 // type of the param
                 $$->operator = $1;
                 // set the semantic type for param
                 $$->sem_type = $1;
 
                 // insert
-                $$->symbol = Insert($$->name, $1, 2, level + 1, 1, offset, NULL);
+                $$->symbol = Insert($$->name, $1, 3, level + 1, 1, offset, NULL);
                 // increment offset, 1 because it is a poitner
                 offset += 1;
             } // end type_specifier ID []
@@ -521,6 +521,9 @@ local_declaration   : /*empty*/ /*local-declarations → { var-declarations }*/
 
 expression_stmt : expression ';' /*expression-stmt → expression ; | ;*/
                         {
+                            if (checkPointer($1))     
+                                yyerror("Array does not have an index");
+
                             // Create a node for expression statement
                             $$ = ASTCreateNode(EXPRSTMT);
 
@@ -538,6 +541,9 @@ expression_stmt : expression ';' /*expression-stmt → expression ; | ;*/
 
 selection_stmt  : IF expression THEN statement /*selection-stmt → if expression then statement [ else statement ] +*/
                     {
+                        if (checkPointer($2))
+                            yyerror("Array does not have an index");
+                    
                         // Create a node for the expression of the if statement
                         $$ = ASTCreateNode(IFSTMT);
 
@@ -552,6 +558,9 @@ selection_stmt  : IF expression THEN statement /*selection-stmt → if expressio
                     }
                 | IF expression THEN statement ELSE statement
                     {
+                        if (checkPointer($2))
+                            yyerror("Array does not have an index");
+
                         // Create a node for the expression of the if statement
                         $$ = ASTCreateNode(IFSTMT);
 
@@ -571,6 +580,9 @@ selection_stmt  : IF expression THEN statement /*selection-stmt → if expressio
 
 iteration_stmt  : WHILE expression DO statement /*iteration-stmt → while expression do statement*/
                     {
+                        if (checkPointer($2))
+                            yyerror("Array does not have an index");
+                        
                         // Create a node for iteration statement
                         $$ = ASTCreateNode(ITERSTMT);
 
@@ -591,6 +603,9 @@ return_stmt : RETURN ';' /*return-stmt → return [ expression ] + ;*/
                     }
             | RETURN expression ';'
                     {
+                        if (checkPointer($2))
+                            yyerror("Array does not have an index");
+                            
                         // Create a node for return statement
                         $$ = ASTCreateNode(RETURNSTMT);
 
@@ -601,6 +616,9 @@ return_stmt : RETURN ';' /*return-stmt → return [ expression ] + ;*/
 
 read_stmt   : READ var ';' /*read-stmt → read variable ;*/
                     {
+                       if (checkPointer($2))
+                            yyerror("Array does not have an index");
+
                         $$ = ASTCreateNode(READSTMT);
                         $$->s1 = $2;
                     }
@@ -626,6 +644,9 @@ write_stmt  : WRITE expression ';' /*write-stmt → write expression;*/
 
 assignment_stmt : var '=' simple_expression ';' /*assignment-stmt → var = simple-expression ;*/
                     {
+                        if (checkPointer($1) || checkPointer($3))
+                            yyerror("Array does not have an index");
+
                         // check if the type on both size of the assignment statement matched.
                        if ($1->sem_type != $3->sem_type) {
                            yyerror("Type mismatch on assignment");
@@ -660,6 +681,7 @@ var : ID  /*var → ID [ [ expression ] ] +*/
                 0 - variable
                 1 - function
                 2 - array
+                3 - array parameter
             */
             // variable not defined
             struct SymbTab * instance = Search($1, level, 1);
@@ -684,6 +706,11 @@ var : ID  /*var → ID [ [ expression ] ] +*/
             $$->sem_type = instance->type;
             // store the symbol table pointer
             $$->symbol = instance; 
+
+            // if it is the identifier of an array, set value to 3 to distinguish
+            if (instance->isFunc != 0) {
+                $$->value = 3;
+            }
         } // end  ID
         
     | ID '['expression']' 
@@ -697,7 +724,7 @@ var : ID  /*var → ID [ [ expression ] ] +*/
             } // end if
 
             // not an array
-            if (instance->isFunc != 2) {
+            if (instance->isFunc != 2 && instance->isFunc != 3) {
                 yyerror("Needs to be an array");
             } // end if
             
@@ -728,6 +755,9 @@ simple_expression   : additive_expression /*simple-expression → additive-expre
                                 yyerror("Type mismatch");
                             } // end if
 
+                            if (checkPointer($1) || checkPointer($3))
+                                yyerror("Array does not have an index");
+                                
                             // create new node
                             $$ = ASTCreateNode(EXPR);
                             // simple_expression
@@ -789,6 +819,9 @@ additive_expression : term /*additive-expression → term { addop term } (left-a
                                 yyerror("Type mismatch");
                             } // end if
 
+                            if (checkPointer($1) || checkPointer($3))
+                                yyerror("Array does not have an index");
+
                             // create new node
                             $$ = ASTCreateNode(EXPR);
                             // additive expression
@@ -830,6 +863,9 @@ term    : factor /*term → factor { multop factor } (left-associative)*/
                     yyerror("Type mismatch");
                 } // end if
 
+               if (checkPointer($1) || checkPointer($3))
+                    yyerror("Array does not have an index");
+
                 // new node
                 $$ = ASTCreateNode(EXPR);
                 // term
@@ -859,12 +895,12 @@ multop  : '*' /*multop → * | / | and | or*/
             }
         | AND
             {
-                // and bitwise
+                // and
                 $$ = ANDBW;
             }
         | OR
             {
-                // or bitwise
+                // or
                 $$ = ORBW;
             }
         ;
@@ -1065,6 +1101,7 @@ int main(int argc, char * argv[]) {
 
         // instruction section
         fprintf(outfile, "\n.text\n\n");
+        fprintf(outfile, "j main\n\n");
         EMITAST(gp, outfile);
         ASTprint(gp, 0);
     } // end if
@@ -1076,3 +1113,4 @@ int main(int argc, char * argv[]) {
     // print out the syntas tree
     //ASTprint(gp, 0);
 } // end main
+

@@ -533,8 +533,16 @@ int check_parameters(struct ASTNode * fparam, struct ASTNode * aparam) {
     if (fparam->sem_type != aparam->sem_type) return 0; // not the same type -> false
 
     // check if the argument is an array if the parameter expects an array reference
-    if (fparam->value == 2 && (aparam->s1->type != IDENT || aparam->s1->symbol->isFunc != 2)) return 0;
+    if (fparam->symbol->isFunc == 3 && !(checkPointer(aparam->s1))) return 0;
 
     return check_parameters(fparam->next, aparam->next);
 } // end if
 
+int checkPointer(ASTNode * p) {
+    if (p->type != IDENT) return 0;
+    
+    // an array address
+    if (p->value == 3) return 1; 
+    
+    return 0;
+} // end checkPointer

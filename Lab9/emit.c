@@ -160,16 +160,6 @@ void EMITAST(ASTNode *p, FILE * file) {
             emit_expr(p->s1, file);
 			break; // of EXPRSTMT
         } // end expression statement
-
-        case ARG:
-        {
-            // print ARGUMENT
-            fprintf(stderr, "ARGUEMENT\n");
-            
-            // print the expression of the argument
-            EMITAST(p->s1, file);
-            break; // of ARG
-        } // end ARG
 		
         // default type when a new type of node is found
         default: 
@@ -316,7 +306,12 @@ void emit_expr(ASTNode * p, FILE * file) {
             break;
         case IDENT:
             emit_identifier(p, file);
+           
+            if (checkPointer(p)) return;
+            // value is 3 means it will be pointer
+            // isFunc = 3 means it is a array parameter
             emit(file, "", "lw $a0, ($a0)", "#fetch value from the location stored at $a0");
+
             return;
             break;
         case FUNCALL:
@@ -417,10 +412,10 @@ void emit_identifier(ASTNode * p, FILE * file) {
 
     // check if the identifier is global
     if (p->symbol->level == 0) {
-        fprintf(stderr, "global level\n");
 
+        fprintf(stderr, "Name: %s Result: %d", p->name, p->value != 3);
         // check if it is scalar or array
-        if (p->symbol->isFunc == 2) {
+        if (p->symbol->isFunc == 2 && p->value != 3) {
             // global array
             // get the index
             emit_expr(p->s1, file);
@@ -436,7 +431,6 @@ void emit_identifier(ASTNode * p, FILE * file) {
         } // end if
         
         // global scalar
-        fprintf(stderr, "global scalar\n");
         sprintf(s, "la $a0, %s", p->name);
         emit(file, "", s, "#load gobal variable from data segment");
         return;
@@ -444,7 +438,7 @@ void emit_identifier(ASTNode * p, FILE * file) {
     
     // the identifier is local
     // check if it is scalar or array
-    if (p->symbol->isFunc == 2) {
+    if (p->symbol->isFunc != 0 && p->value != 3) {
         // local array
         // get the address
         // get the array index
@@ -453,19 +447,29 @@ void emit_identifier(ASTNode * p, FILE * file) {
         sprintf(s, "sll $a0, $a0, %d", WSIZE / 2);
         emit(file, "", s, "# times the word size");
 
-        // add the offset of the array
-        sprintf(s, "add $a0, $a0, %d", p->symbol->offset * WSIZE);
-        emit(file, "", s, "#");
+        if (p->symbol->isFunc == 3) {
+            sprintf(s, "add $a1, $sp, %d", p->symbol->offset * WSIZE);
+            emit(file, "", s, "# identifier is a LOCAL SCALAR");
+            emit(file, "", "lw $a1, ($a1)", "#fetch value from the location stored at $a0");
+            emit(file, "", "add $a0, $a1, $a0", "#identifier is a LOCAL ARRAY");
+        }
+        else {
+            // add the offset of the array
+            sprintf(s, "add $a0, $a0, %d", p->symbol->offset * WSIZE);
+            emit(file, "", s, "#");
+            // add in the stack pointer
+            emit(file, "", "add $a0, $sp, $a0", "#identifier is a LOCAL ARRAY");
+        }
 
-        // add in the stack pointer
-        emit(file, "", "add $a0, $sp, $a0", "#identifier is a LOCAL ARRAY");
         return;
     } // end if
 
     // local scalar
-    fprintf(stderr, "%s: %d", p->name, p->symbol->offset);
     sprintf(s, "add $a0, $sp, %d", p->symbol->offset * WSIZE);
     emit(file, "", s, "# identifier is a LOCAL SCALAR");
+    if (p->symbol->isFunc == 3) {
+        emit(file, "", "lw $a0, ($a0)", "#fetch value from the location stored at $a0");
+    }
 }
 
 //
@@ -518,7 +522,6 @@ void emit_arguments(ASTNode * fparam, ASTNode * p, FILE * file) {
     // save the argument
     emit_expr(p->s1, file);
     char s[100];
-    fprintf(stderr, "Offset %d", p->symbol->offset);
     sprintf(s, "sw $a0, %d($t5)", fparam->symbol->offset * WSIZE);
     emit(file, "", s, "# Store the parameter to stack");
 
