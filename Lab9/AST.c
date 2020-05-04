@@ -2,12 +2,10 @@
     File Name: AST.c
     Description: Contain the ASTprint function that will help print the AST tree.
     Author: Long Tran
-    Date: April 17th, 2020
+    Date: May 8th, 2020
 
     Changes:
-    + Comments
-    + Add check parameters to check if the arguments of a function matches the parameters of a function.
-    + Add a argument case in printASTNode to print ARGUMENT then the expression.
+    + Define function checkPointer if an IDENT is an array reference
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -538,6 +536,9 @@ int check_parameters(struct ASTNode * fparam, struct ASTNode * aparam) {
     return check_parameters(fparam->next, aparam->next);
 } // end if
 
+// check if the node is an array reference
+// pre: a AST node
+// post: return 1 if the node has type IDENT, and it is a array reference (p->value = 3)
 int checkPointer(ASTNode * p) {
     if (p->type != IDENT) return 0;
     

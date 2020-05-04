@@ -21,3 +21,7 @@ clean:
 test:
 	./lab9 < test.al -o test
 
+# test the functionality of the ALGOL-C language stored in test_all.al
+testall: test_all.al
+	./lab9 < test_all.al -o test
+

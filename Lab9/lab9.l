@@ -1,13 +1,13 @@
 /*
-    File Name: lab7.l
+    File Name: lab9.l
     Description: This lex routine will analyze the input given from yacc and return the appropriate tokens: INT, VOID, BOOLEAN, MYBEGIN, END, IF, THEN, ELSE, WHILE, DO, RETURN, READ, WRITE, LE, GE, EQ, NE, AND, OR, NOT, TRUE, FALSE, NUM, ID, '-', '+', '*', '/', '=', '(', ')', ',', ';', '<', '>', '[', ']'. 
     For NUM and ID, it will return with companion value.
     Author: Long Tran
-    Date: March 28th, 2020
+    Date: May 8th, 2020
     Input: from yacc file
     Output: a token
     Changes:
-    + added some comments 
+    + Add a a rule for returning strings. 
 */
 
 
@@ -160,6 +160,7 @@ false   {
             if (debug) fprintf(stderr, "Found an identifier named: %s\n", yylval.string); 
             return ID;
         } // end ID
+        
 \"(.|[ \t])*\"   {
             yylval.string = strdup(yytext);
             return STRING;

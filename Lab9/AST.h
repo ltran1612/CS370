@@ -6,12 +6,10 @@
     Filename: AST.h
     Description: a header file to contain the enum of operators and node types
     Modified by Long Tran
-    Date: April 17th, 2020
+    Date: May 8th, 2020
 
     Changes:
-    + Added NodeType arg. 
-    + Add a new field in ASTNode symbol of type SymbTab
-    + Add prototype for check_parameters
+    + Add function prototype checkPointer
  */
 
 // preprocessors wrapper
@@ -152,5 +150,8 @@ void printOperator(enum OPERATORS op);
 // 1 if Okay, 0 if not okay
 int check_parameters(struct ASTNode * fparam, struct ASTNode * aparam);
 
+// check if the node is an array reference
+// pre: a AST node
+// post: return 1 if the node has type IDENT, and it is a array reference (p->value = 3)
 int checkPointer(ASTNode * p);
 #endif  // of AST_H

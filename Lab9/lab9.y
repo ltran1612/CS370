@@ -1,23 +1,15 @@
 /*
-    File Name: lab7.y
+    File Name: lab9.y
     Description: This yacc routine will parse the input and checks if the program matches the syntax of the ALGOL_C. It will print out any possible syntax error with the line on which the error is.
     Author: Long Tran
-    Date: April 17th, 2020
+    Date: May 8th, 2020
     Input: strings
     Output: If the program is syntactically correct, it will print "The program is syntactically correct"
     Changes: 
-    + Create a ARG node and s1 to the expression instead of just passing up expression
-    + Add check for declaration in var_list, and if it has not been decalred, add it in the symbol table.
-    + In func dec, save the offset to global offest, and set the offset to 2 (2 because of the 2 spaces needed for machine). Also, assign the param for
-    for funcdec after param. Finally, set the size of the function to be the largest offset that the function body would need.
-    + In param, the normal scalar var and the array reference will have size of 1 in the symbol table. However, array reference will have isFunc = 2
-    + In compound, set the greatest offset and delete all var declarations instide that compound statement (level).
-    + In var, make sure that the id is a variable, if a function -> barf. In Var[expression], make sure that id is an array, else barf
-    + In all of the epxressions rule (simple, addition, and term), check if the two operands have the same type, else barf
-    + In function call, check if the id has been defined, if not -> barf. Then, check if the id is for a function, if not -> barf. Then check if 
-    the arguments passed match the parameter list of the function, if not -> barf.
-    + Num will have type int
-    + True/False will have type boolean
+    + In main, add codes to check the arguments for options like debug, or output name.
+    + Add checkPointer at assignment statement, expression statement, 
+    while statement, return statement, write statement, read statement, not factor,
+    and at expressionss. This is done so that array reference will only available while passing to a function
 */
 
 %{
@@ -29,7 +21,7 @@
 #include "symtable.h"
 // include to access the nodes types
 #include "AST.h"
-//
+// include to use functions like EMITSTRINGS
 #include "emit.h"
 
 // the offset where function will start
@@ -393,6 +385,14 @@ param   : type_specifier ID /*param → type-specifier ID [ [] ]*/
             
         | type_specifier ID '[' ']' 
             {
+                /*
+                isFunc
+                0 - variable
+                1 - function
+                2 - array
+                3 - array parameter
+                */
+
                 // duplicate variable
                 if (Search($2, level + 1, 0) != NULL) {
                     yyerror("Duplicate Variable");
@@ -521,6 +521,7 @@ local_declaration   : /*empty*/ /*local-declarations → { var-declarations }*/
 
 expression_stmt : expression ';' /*expression-stmt → expression ; | ;*/
                         {
+                            // check if the expression is an array pointer -> not allow
                             if (checkPointer($1))     
                                 yyerror("Array does not have an index");
 
@@ -541,6 +542,7 @@ expression_stmt : expression ';' /*expression-stmt → expression ; | ;*/
 
 selection_stmt  : IF expression THEN statement /*selection-stmt → if expression then statement [ else statement ] +*/
                     {
+                        // check if the expression is an array pointer -> not allow
                         if (checkPointer($2))
                             yyerror("Array does not have an index");
                     
@@ -558,6 +560,7 @@ selection_stmt  : IF expression THEN statement /*selection-stmt → if expressio
                     }
                 | IF expression THEN statement ELSE statement
                     {
+                        // check if the expression is an array pointer -> not allow
                         if (checkPointer($2))
                             yyerror("Array does not have an index");
 
@@ -580,6 +583,7 @@ selection_stmt  : IF expression THEN statement /*selection-stmt → if expressio
 
 iteration_stmt  : WHILE expression DO statement /*iteration-stmt → while expression do statement*/
                     {
+                        // check if the expression is an array pointer -> not allow
                         if (checkPointer($2))
                             yyerror("Array does not have an index");
                         
@@ -603,6 +607,7 @@ return_stmt : RETURN ';' /*return-stmt → return [ expression ] + ;*/
                     }
             | RETURN expression ';'
                     {
+                        // check if the expression is an array pointer -> not allow
                         if (checkPointer($2))
                             yyerror("Array does not have an index");
                             
@@ -616,7 +621,8 @@ return_stmt : RETURN ';' /*return-stmt → return [ expression ] + ;*/
 
 read_stmt   : READ var ';' /*read-stmt → read variable ;*/
                     {
-                       if (checkPointer($2))
+                        // check if the var is not array pointer -> not allow
+                        if (checkPointer($2))
                             yyerror("Array does not have an index");
 
                         $$ = ASTCreateNode(READSTMT);
@@ -626,6 +632,10 @@ read_stmt   : READ var ';' /*read-stmt → read variable ;*/
 
 write_stmt  : WRITE expression ';' /*write-stmt → write expression;*/
                     {
+                        // check if the expression is an array pointer -> not allow
+                        if (checkPointer($2))
+                            yyerror("Array does not have an index");
+
                         // Create a node for write statement
                         $$ = ASTCreateNode(WRITESTMT);
 
@@ -644,13 +654,14 @@ write_stmt  : WRITE expression ';' /*write-stmt → write expression;*/
 
 assignment_stmt : var '=' simple_expression ';' /*assignment-stmt → var = simple-expression ;*/
                     {
+                        // check if the either the LHS or RHS is an array pointer -> not allow
                         if (checkPointer($1) || checkPointer($3))
                             yyerror("Array does not have an index");
 
                         // check if the type on both size of the assignment statement matched.
-                       if ($1->sem_type != $3->sem_type) {
+                        if ($1->sem_type != $3->sem_type) {
                            yyerror("Type mismatch on assignment");
-                       } // end if
+                        } // end if
 
                         // Create a node for the assignment statement
                         $$ = ASTCreateNode(ASSIGNSTMT);
@@ -661,6 +672,7 @@ assignment_stmt : var '=' simple_expression ';' /*assignment-stmt → var = simp
                         // the expression
                         $$->s2 = $3;
 
+                        // create temporary space
                         $$->name = CreateTemp();
                         $$->symbol = Insert($$->name, $1->sem_type, 0, level, 1, offset, NULL);
                         offset++;
@@ -682,6 +694,9 @@ var : ID  /*var → ID [ [ expression ] ] +*/
                 1 - function
                 2 - array
                 3 - array parameter
+
+                $$->value 
+                3 - array reference (pointer)
             */
             // variable not defined
             struct SymbTab * instance = Search($1, level, 1);
@@ -710,7 +725,7 @@ var : ID  /*var → ID [ [ expression ] ] +*/
             // if it is the identifier of an array, set value to 3 to distinguish
             if (instance->isFunc != 0) {
                 $$->value = 3;
-            }
+            } // end if
         } // end  ID
         
     | ID '['expression']' 
@@ -755,6 +770,7 @@ simple_expression   : additive_expression /*simple-expression → additive-expre
                                 yyerror("Type mismatch");
                             } // end if
 
+                            // check if the either one of the two operands is an array pointer -> not allow
                             if (checkPointer($1) || checkPointer($3))
                                 yyerror("Array does not have an index");
                                 
@@ -769,6 +785,7 @@ simple_expression   : additive_expression /*simple-expression → additive-expre
                             // set the semantic type of the expression
                             $$->sem_type = $1->sem_type;
 
+                            // create temporary space
                             $$->name = CreateTemp();
                             $$->symbol = Insert($$->name, $1->sem_type, 0, level, 1, offset, NULL);
                             offset++;
@@ -819,6 +836,7 @@ additive_expression : term /*additive-expression → term { addop term } (left-a
                                 yyerror("Type mismatch");
                             } // end if
 
+                            // check if the either one of the two operands is an array pointer -> not allow
                             if (checkPointer($1) || checkPointer($3))
                                 yyerror("Array does not have an index");
 
@@ -833,6 +851,7 @@ additive_expression : term /*additive-expression → term { addop term } (left-a
                             // set the semantic type of the expression
                             $$->sem_type = $1->sem_type;
 
+                            // create temporary space
                             $$->name = CreateTemp();
                             $$->symbol = Insert($$->name, $1->sem_type, 0, level, 1, offset, NULL);
                             offset++;
@@ -863,7 +882,8 @@ term    : factor /*term → factor { multop factor } (left-associative)*/
                     yyerror("Type mismatch");
                 } // end if
 
-               if (checkPointer($1) || checkPointer($3))
+                // check if the either one of the two operands is an array pointer -> not allow
+                if (checkPointer($1) || checkPointer($3))
                     yyerror("Array does not have an index");
 
                 // new node
@@ -877,6 +897,7 @@ term    : factor /*term → factor { multop factor } (left-associative)*/
                 // set the semantic type of the expression
                 $$->sem_type = $1->sem_type;
 
+                // create temporary space
                 $$->name = CreateTemp();
                 $$->symbol = Insert($$->name, $1->sem_type, 0, level, 1, offset, NULL);
                 offset++;
@@ -954,10 +975,9 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
             }
         | NOT factor
             {
-                // check if factor is ok.
-                if ($2->sem_type != BOOLTYPE) {
-                    yyerror("Needs to be a boolean");
-                } // end if
+                // check if the operand is an array pointer -> not allow
+                if (checkPointer($2))
+                    yyerror("Array does not have an index");
 
                 // Create a node for expression statement
                 $$ = ASTCreateNode(EXPR);
@@ -968,9 +988,6 @@ factor  : '(' expression ')' /*factor → ( expression ) | NUM | var | call | tr
                 // set the semantic type of this expression
                 $$->sem_type = $2->sem_type;
 
-                $$->name = CreateTemp();
-                $$->symbol = Insert($2->name, $2->sem_type, 0, level, 1, offset, NULL);
-                offset++;
             }
         ;
 
@@ -1025,6 +1042,7 @@ arg_list    : expression /*arg-list → expression { , expression }*/
                     $$->s1 = $1; 
                     $$->sem_type = $1->sem_type;
 
+                    // create temporary space
                     $$->name = CreateTemp();
                     $$->symbol = Insert($$->name, $1->sem_type, 0, level, 1, offset, NULL);
                     offset++;
@@ -1036,12 +1054,12 @@ arg_list    : expression /*arg-list → expression { , expression }*/
                     // Create new argument node
                     $$ = ASTCreateNode(ARG);
                     $$->s1 = $1; 
-
                     // connect to the next expression  
                     $$->next = $3;
-
+                    //
                     $$->sem_type = $1->sem_type;
 
+                    // create temporary space
                     $$->name = CreateTemp();
                     $$->symbol = Insert($$->name, $1->sem_type, 0, level, 1, offset, NULL);
                     offset++;
@@ -1050,12 +1068,16 @@ arg_list    : expression /*arg-list → expression { , expression }*/
          
 %%
 
+// the start of the compiler, parsing, and flag checking.
 int main(int argc, char * argv[]) {
     char filename[100];
-    int i;
     FILE * outfile = NULL;
+
+    // checking the arguments
+    int i;
     for (i = 0; i < argc;) {
         // process our argument list
+        // check if the flag is -d
         if (strcmp(argv[i], "-d") == 0) {
             // set debug flag
             debug = 1;
@@ -1063,18 +1085,20 @@ int main(int argc, char * argv[]) {
             // move to the next arg
             i++;
         } // end if
-        else if (strcmp(argv[i], "-o") == 0) {
+        else if (strcmp(argv[i], "-o") == 0) { // check if the flag is -o
             // We assume argv[i+1] is the file we want to open
             if (i + 1 >= argc) {
                 fprintf(stderr, "No filename was given\n");
                 exit(1);
             } // end if
             
+            // there exists a file name.
             // attatch the .asm to the filename taken from the argument after -o flag
             sprintf(filename, "%s.asm", argv[i+1]);
 
             /* we want to use a file descriptor and want to save the result in that file*/
            outfile = fopen(filename, "w");
+
             if (outfile == NULL) {
                 printf("Cannot create file %s\n", filename);
                 exit(1);
@@ -1083,34 +1107,40 @@ int main(int argc, char * argv[]) {
             // move pass the argument
             i = i + 2;
         } // end else if
-        else i++;
+        else i++; // invalid argument, pass
     } // end for i
 
-    if (outfile != NULL) {
-        // write the content of the compilation into the file
-        yyparse();
-        fprintf(outfile, ".data\n\n");
-
-        // all strings
-        EMITSTRINGS(gp, outfile);
-        fprintf(outfile, "_NL:\t.asciiz\t\"\\n\"\n");
-        fprintf(outfile, ".align 2 # start all of global variable aligned\n\n");
-
-        // all global variable
-        EMITGLOBAL(gp, outfile);
-
-        // instruction section
-        fprintf(outfile, "\n.text\n\n");
-        fprintf(outfile, "j main\n\n");
-        EMITAST(gp, outfile);
-        ASTprint(gp, 0);
-    } // end if
-    else {
+    // error case
+    if (outfile == NULL) {
+        // no output file name was given
         fprintf(stderr, "No output file name was given\n");
         exit(1);
-    } // end else
+    } // end if
 
-    // print out the syntas tree
-    //ASTprint(gp, 0);
+    // write the content of the compilation into the file
+    // compile the file
+    yyparse();
+
+    // print the data section
+    fprintf(outfile, ".data\n\n");
+    // all strings
+    EMITSTRINGS(gp, outfile);
+    fprintf(outfile, "_NL:\t.asciiz\t\"\\n\"\n");
+    fprintf(outfile, ".align 2 # start all of global variable aligned\n\n");
+    // all global variable
+    EMITGLOBAL(gp, outfile);
+
+    // instruction section
+    fprintf(outfile, "\n.text\n\n");
+    // if main exists make main the starting point
+    if (findMain(gp))
+        fprintf(outfile, ".globl main\n\n");
+
+    // emit the functions declaration and statements.
+    EMITAST(gp, outfile);
+    
+    // print the tree for debugging
+    if (debug)
+        ASTprint(gp, 0);
 } // end main
 
