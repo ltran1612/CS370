@@ -212,7 +212,6 @@ int findMain(ASTNode * p) {
     return findMain(p->next);
 } // end findMain
 
-
 // helper functions to make clean MIPS code
 // Take in 4 params, and print them out pretty
 // Pre: given 3 strings, print them out in Assembling formatting
@@ -338,11 +337,9 @@ void emit_write(ASTNode * p, FILE * file) {
     emit(file, "", "syscall", "");
 } // end emit_write
 
-/*
-    emit_expr
-    PRE: a pointer to an expression as defined in YACC language
-    POST: MIPS code that sets $a0 to the value of expr
-*/
+// emit_expr
+// PRE: a pointer to an expression as defined in YACC language
+// POST: MIPS code that sets $a0 to the value of expr
 void emit_expr(ASTNode * p, FILE * file) {
     // error cases
     if (p == NULL) return;

@@ -29,6 +29,10 @@ int add(int x, int y)
 begin
     return x + y;
 end
+void print(void)
+begin
+    write "print";
+end
 void testFunction(void)
 begin
     int mem[100], x;
@@ -46,6 +50,9 @@ begin
     read x;
     write "The result is: (expected to be x + 2)";
     write add(1, add(1, x));
+
+    write "Test function no return, no param";
+    print();
 end
 
 void testSelection(void)
@@ -148,6 +155,13 @@ begin
     write "The value of two after read is: ";
     write two;
     write "";
+
+    write "The value of array[99] before read is: ";
+    write array[99];
+    write "Enter a value for array[99]";
+    read array[99];
+    write "The value of array[99] after read is: ";
+    write array[99];
 end
 
 void changeVar(int x, int num[])
