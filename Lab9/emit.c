@@ -86,7 +86,9 @@ void EMITGLOBAL(ASTNode * p, FILE * file) {
     EMITGLOBAL(p->s2, file);
 } // end EMITGLOBAL
 
-// the function will generate a label with increasing number
+// the function will generate a distinct label
+// pre: nothing
+// post: the string of the name of the distinct label 
 char * genlabel()
 {
     char s[100];
@@ -214,8 +216,8 @@ int findMain(ASTNode * p) {
 
 // helper functions to make clean MIPS code
 // Take in 4 params, and print them out pretty
-// Pre: given 3 strings, print them out in Assembling formatting
-// in FP
+// Pre: given 3 strings
+// post: print them out in Assembling formatting in FP
 // example emit(fp, "L1", "ldi R13, 15", "#Load a number")
 void emit(FILE * file, char * label, char * command, char * comment) {
 
@@ -431,9 +433,11 @@ void emit_expr(ASTNode * p, FILE * file) {
             emit(file, "", "mflo $a0", "# retrieve the quotient of the division");
             break;
         case ANDBW:
+            // and the two operands
             emit(file, "", "and $a0, $a0, $a1", "# LHS and RHS");
             break;
         case ORBW:
+            // or the two operands
             emit(file, "", "or $a0, $a0, $a1", "# LHS or RHS");
             break;
         case LESS:

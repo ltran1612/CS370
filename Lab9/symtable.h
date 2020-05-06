@@ -46,20 +46,31 @@ struct SymbTab
 
 // functions
 /* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
+// pre: name, type, a function or not, the level of the definition, its size, the offset value, and its parametern (if any).
+// post: a symbtab initialized with those values
 struct SymbTab * Insert(char * name, enum OPERATORS type, int isFunc, int level, int mysize, int offset, ASTNode * fparms );
 
 /*  Search for a symbol name at level or below.  We have to do multiple passes into the symbol table because we have to find
    the name closest to us 
     If recur is non-zero, then we look through all of the levels, otherwise, only our level 
     We return a pointer to a SymbolTab structure so that we can use other functions/methods to get the attributes */
+// pre: the name, level, and if we want to search recursively (search all level)
+// post: the symbtab entry with that name, or null if there are not any.
 struct SymbTab * Search(char * name, int level, int recur);
 
 /*  General display to see what is our symbol table */
+// pre: nothing
+// post: Print out the symbol table
 void Display();
 
 /* Remove all enteries that have the indicated level
    We need to take care about updating first pointer into the linked list when we are deleting edge elements */
+// pre: the level of all of the symbtab entries I want to delete
+// post: have all symbtab entries with the input level deleted.
 int Delete();
 
+// Create a temporary space for assignment, all expressions, and function arguments.
+// pre: nothing
+// post: the name of the new temporary space.
 char * CreateTemp();
 #endif // of SYMTABLE_H

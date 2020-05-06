@@ -31,7 +31,9 @@ void EMITSTRINGS(ASTNode * p, FILE * file);
 // Post: Print out the asm code that define global variables in the .data section
 void EMITGLOBAL(ASTNode * p, FILE * file);
 
-// the function will generate a label with increasing number
+// the function will generate a distinct label
+// pre: nothing
+// post: the string of the name of the distinct label 
 char * genlabel();
 
 // check if the program has a main function

@@ -29,11 +29,15 @@
 #include "symtable.h"
 #include "AST.h"
 
-// 
+// the node pointing to the start of the LinkedList or symbol table.
 struct SymbTab * first = NULL;
 
+// the number temporary values has created, used for creating name for temporary space.
 int GTEMP = 0;
 
+// Create a temporary space for assignment, all expressions, and function arguments.
+// pre: nothing
+// post: the name of the new temporary space.
 char * CreateTemp()
 {  
   char hold[100];
@@ -41,9 +45,11 @@ char * CreateTemp()
   sprintf(hold, "_t%d", GTEMP++);
   s = strdup(hold);
   return (s);
-}
+} // end CreateTemp
 
 /* Simple Insert into the symbol table with the size, type level that the name is being inserted into */
+// pre: name, type, a function or not, the level of the definition, its size, the offset value, and its parametern (if any).
+// post: a symbtab initialized with those values
 struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level, int size, int offset , ASTNode * fparms)
 {
   struct SymbTab * n;
@@ -86,6 +92,8 @@ struct SymbTab * Insert(char *name, enum OPERATORS type, int isFunc, int  level,
 } // end insert
 
 /* print out a single symbol table entry -- for debugging */
+// pre: a symbtab entry
+// post: print out the name, offset, level, typ, size, isFunc of that entry
 void PrintSym(struct SymbTab *s)
 {
   // print name, offset, and level
@@ -99,6 +107,8 @@ void PrintSym(struct SymbTab *s)
 } // end PrintSym
 
 /*  General display to see what is our symbol table */
+// pre: nothing
+// post: Print out the symbol table
 void Display()
 {
   // the types of field
@@ -118,6 +128,8 @@ void Display()
    the name closest to us 
     If recur is non-zero, then we look through all of the levels, otherwise, only our level 
     We return a pointer to a SymbolTab structure so that we can use other functions/methods to get the attributes */
+// pre: the name, level, and if we want to search recursively (search all level)
+// post: the symbtab entry with that name, or null if there are not any.
 struct SymbTab * Search(char * name, int level, int recur)
 {
    int i,flag=0;
@@ -142,6 +154,8 @@ struct SymbTab * Search(char * name, int level, int recur)
 
 /* Remove all enteries that have the indicated level
    We need to take care about updating first pointer into the linked list when we are deleting edge elements */
+// pre: the level of all of the symbtab entries I want to delete
+// post: have all symbtab entries with the input level deleted.
 int Delete(int level)
 {
   int SIZE=0;

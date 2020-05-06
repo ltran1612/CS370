@@ -44,8 +44,11 @@ int MAXOFFSET; // the maximum amount of memory needed for the current function
 extern int debug;
 
 // functions
-int yylex();
+int yylex(); // this functions is here to avoid having to include lex.yy.c
+
 // called yyparase on syntax error
+// pre: a pointenr to an error message
+// post: print the error message with the line of the error and exit the compiler.
 void yyerror(char const * s) {
     fprintf(stderr, "%s on line %d\n", s, linecount);
     exit(1);

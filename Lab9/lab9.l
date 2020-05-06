@@ -178,6 +178,7 @@ false   {
     } // end .
 %%
 
+// called at the end of tokens analyzing.
 int yywrap() {
     return 1;
 } // end yywrap
