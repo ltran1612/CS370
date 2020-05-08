@@ -1,6 +1,6 @@
 #Makefile for lab 9
 #Long Tran
-#April 17, 2020
+#May 8, 2020
 
 all: lab9
 
@@ -22,6 +22,10 @@ test:
 	./lab9 < test.al -o test
 
 # test the functionality of the ALGOL-C language stored in test_all.al
-testall: test_all.al
+testall: test_all.al lab9
 	./lab9 < test_all.al -o test
+
+# zip the content
+zip:
+	zip -r long-lab9.zip AST.c AST.h emit.c emit.h lab9.l lab9.y Makefile symtable.c symtable.h test_folder
 
