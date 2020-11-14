@@ -44,9 +44,9 @@ Main symbol table END
 
 Variable INT  y has offset 100
 Variable INT  Z[100] has offset 0
-INT FUNCTION f has max offset 14
+INT FUNCTION f has size 14
   (
-  PARAMETER INT b has an offset 2
+  PARAMETER INT b has offset 2
   )
   BLOCK STATEMENT
    Variable INT  y has offset 3
@@ -101,10 +101,10 @@ INT FUNCTION f has max offset 14
            IDENTIFIER b
         )
 Variable INT  z has offset 101
-INT FUNCTION main has max offset 4
+INT FUNCTION main has size 4
   (
-  PARAMETER INT arg1 has an offset 2
-  PARAMETER INT arg2[] has an offset 3
+  PARAMETER INT arg1 has offset 2
+  PARAMETER INT arg2[] has offset 3
   )
   BLOCK STATEMENT
    WRITE STATEMENT

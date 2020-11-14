@@ -74,7 +74,9 @@ void ASTprint(ASTNode *p, int level) {
             if (p->value > 1)
                 fprintf(stderr, "[%d]", p->value);
             
+            // has offset
             fprintf(stderr, " has offset %d", p->symbol->offset);
+
             // print new line
             fprintf(stderr, "\n");
 
@@ -99,6 +101,7 @@ void ASTprint(ASTNode *p, int level) {
             // print function name
             fprintf(stderr, "%s", p->name);
 
+            // print has size
             fprintf(stderr, " has size %d\n", p->symbol->size);
             
             // print parameters
@@ -150,6 +153,7 @@ void ASTprint(ASTNode *p, int level) {
             if (p->value > 1) 
                 fprintf(stderr, "[]");
 
+            // print has offset
             fprintf(stderr, " has offset %d", p->symbol->offset);
 
             // get to a new line

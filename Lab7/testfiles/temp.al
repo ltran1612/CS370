@@ -1,11 +1,11 @@
-int f(int a[], boolean b, int c)
+int f(boolean a[], boolean b, int c)
 begin
 end
 
 int main(void)
 begin
-int a[100];
+int a[1];
 int c;
-f(a, true, f(c, true, 2));
+f(a, false, f(a, true, 2) + 1);
 end
 int x;
